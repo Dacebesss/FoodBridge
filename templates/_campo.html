@@ -1,0 +1,7 @@
+{# Un campo de formulario con su etiqueta, errores y ayuda. Uso: {% include "_campo.html" with field=form.nombre %} #}
+<div class="campo{% if field.errors %} con-error{% endif %}{% if clase %} {{ clase }}{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="obligatorio" aria-hidden="true"> *</span>{% endif %}</label>
+  {{ field }}
+  {{ field.errors }}
+  {% if field.help_text %}<div class="ayuda">{{ field.help_text }}</div>{% endif %}
+</div>

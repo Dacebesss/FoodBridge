@@ -9,7 +9,10 @@
 <div class="estadisticas">
   <div class="estadistica"><div class="n">{{ num_comercios }}</div><div class="l">comercios registrados</div></div>
   <div class="estadistica"><div class="n">{{ num_ong }}</div><div class="l">entidades verificadas</div></div>
+  <div class="estadistica"><div class="n">{{ entregas.n }}</div><div class="l">lotes entregados</div></div>
+  <div class="estadistica"><div class="n">{{ entregas.kg|floatformat:"-1" }}</div><div class="l">kg rescatados</div></div>
 </div>
+<p class="ayuda">Ahora mismo hay {{ num_disponibles }} lote{{ num_disponibles|pluralize }} disponible{{ num_disponibles|pluralize }}. Todos los lotes se pueden revisar en <a href="{% url 'admin:lotes_lote_changelist' %}">el panel de administración</a>.</p>
 
 <p class="titulo-bloque">Entidades pendientes de aprobación</p>
 {% for ong in ong_pendientes %}

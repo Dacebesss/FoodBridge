@@ -6,13 +6,29 @@
   <p>{{ user.direccion }} · {{ user.municipio }}</p>
 </div>
 
-<button class="btn btn-verde btn-bloque" type="button" disabled title="Disponible en la próxima versión">＋ Publicar lote</button>
+<a class="btn btn-verde btn-bloque" href="{% url 'lotes:publicar' %}">＋ Publicar lote</a>
 
-<p class="titulo-bloque">Por recoger</p>
-<div class="vacio">Aquí verás los lotes que una entidad ha reservado y podrás validar su PIN.</div>
+<p class="titulo-bloque">Por recoger{% if por_recoger %} · {{ por_recoger|length }}{% endif %}</p>
+{% for lote in por_recoger %}
+  {% include "lotes/_tarjeta.html" with modo="por_recoger" %}
+{% empty %}
+  <div class="vacio">Cuando una entidad reserve uno de tus lotes, aparecerá aquí para validar su PIN.</div>
+{% endfor %}
 
-<p class="titulo-bloque">Publicados</p>
-<div class="vacio">Todavía no has publicado nada.</div>
+<p class="titulo-bloque">Publicados{% if publicados %} · {{ publicados|length }}{% endif %}</p>
+{% for lote in publicados %}
+  {% include "lotes/_tarjeta.html" with modo="publicado" %}
+{% empty %}
+  <div class="vacio">No tienes lotes esperando reserva.</div>
+{% endfor %}
 
-<p class="ayuda centrado">Publicar lotes y validar el PIN llega en la próxima versión (semana 3).</p>
+<p class="titulo-bloque">Registro de donaciones</p>
+<div class="estadisticas">
+  <div class="estadistica"><div class="n">{{ entregas.n }}</div><div class="l">lotes entregados</div></div>
+  <div class="estadistica"><div class="n">{{ entregas.kg|floatformat:"-1" }}</div><div class="l">kg donados</div></div>
+</div>
+<p class="ayuda">Cada entrega queda guardada con su fecha, sus kilos y la entidad que la recibe. Sirve para demostrar que donáis, como pide la Ley 1/2025.</p>
+{% for lote in historial %}
+  {% include "lotes/_tarjeta.html" with modo="historial" %}
+{% endfor %}
 {% endblock %}

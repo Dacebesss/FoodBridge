@@ -18,8 +18,8 @@ Proyecto de la asignatura *Eficacia Personal y Profesional* · 1º de Ingenierí
 |---|---|---|
 | 1 | Maqueta visual | ✅ |
 | 2 | Proyecto Django, registro, inicio de sesión, roles y aprobación de ONG | ✅ |
-| 3 | Publicar lotes, reservar y PIN | ⏳ |
-| 4 | Reglas de caducidad, cancelaciones y panel de administrador | ⏳ |
+| 3 | Publicar lotes (con escáner de código de barras), reservar y PIN | ✅ |
+| 4 | Reglas de caducidad, cancelaciones y panel de administrador | ✅ (adelantada a la semana 3) |
 | 5 | Diseño final, estadísticas y publicación en internet | ⏳ |
 | 6 | Arreglos y ensayo de la presentación | ⏳ |
 
@@ -73,7 +73,11 @@ python manage.py migrate
 python manage.py datos_demo
 ```
 
-El segundo comando crea cuentas de prueba (ver abajo).
+El segundo comando crea cuentas y lotes de prueba (ver abajo). Si los lotes se han quedado viejos (por ejemplo, el día de la presentación), créalos otra vez para hoy:
+
+```bash
+python manage.py datos_demo --lotes-nuevos
+```
 
 ### Paso 4 · Arrancar la app
 ```bash
@@ -98,7 +102,25 @@ Todas tienen la contraseña **`foodbridge2026`**.
 | `sanjose@foodbridge.es` | ONG (Comedor Social San José) | Aprobada |
 | `despensa@foodbridge.es` | ONG (Despensa Solidaria El Bosque) | Pendiente |
 
+Los lotes de ejemplo incluyen uno ya reservado por el Comedor Social San José (con su PIN) y una entrega del día anterior.
+
 El panel de administración de Django está en **http://127.0.0.1:8000/admin** (entra con la cuenta de administrador).
+
+---
+
+## Cómo funciona un lote
+
+1. **El comercio publica.** Puede escanear el código de barras con la cámara del móvil: la web busca el producto en [Open Food Facts](https://es.openfoodfacts.org) (base de datos libre, licencia ODbL) y rellena el nombre, la marca, la categoría, la foto, los alérgenos y los kilos. El comercio solo añade la fecha del envase y la franja de recogida. Si el producto no tiene código o no está en la base de datos, se rellena a mano.
+2. **Una entidad verificada del mismo municipio reserva.** El primero que llega gana: la base de datos solo deja reservar un lote que siga disponible. La entidad recibe un **PIN de 4 cifras**.
+3. **En la tienda, el comercio escribe el PIN** y la entrega queda registrada (fecha, kilos y entidad). Tras 5 PIN incorrectos, el PIN cambia.
+
+Reglas:
+- Pasada la **fecha de caducidad** no se puede donar. Pasado el **consumo preferente**, sí.
+- La recogida tiene que ser como tarde el día que caduca.
+- Si la entidad **cancela**, el lote vuelve a publicarse solo si le queda al menos 1 día; si no, se retira.
+- Si termina la **franja de recogida** sin entrega, la reserva se libera y el lote se retira. El comercio puede pulsar «Publicar de nuevo».
+
+El escáner necesita una conexión segura (HTTPS) para usar la cámara. En el ordenador (`127.0.0.1`) y en PythonAnywhere ya la hay. Funciona en Android y en iPhone: si el navegador no sabe leer códigos por sí solo, usa la librería ZXing.
 
 ---
 
@@ -120,10 +142,17 @@ cuentas/               Usuarios: registro, inicio de sesión, roles y aprobació
   views.py             Qué página se muestra en cada dirección
   admin.py             Panel de administrador (aprobar / rechazar ONG)
   tests.py             Pruebas automáticas
+lotes/                 Lotes donados
+  models.py            Qué datos guardamos de cada lote
+  operaciones.py       Las reglas: reservar, cancelar, entregar con PIN, cerrar franjas
+  forms.py             Formulario de publicar (comprueba fechas y franjas)
+  views.py             Páginas y botones de cada acción
+  tests/               Pruebas automáticas de los lotes
 templates/             Páginas HTML (base.html = cabecera y pie comunes; _logo.html = logo)
 static/css/            Estilos: foodbridge.css (común) y portada.css (solo la portada)
 static/js/planeta.js   Planeta 3D interactivo de la portada
-static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, licencia MIT)
+static/js/escaner.js   Escáner de códigos de barras y búsqueda en Open Food Facts
+static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, MIT; ZXing 0.21.3, Apache 2.0)
 docs/capturas/         Capturas de pantalla
 ```
 
@@ -132,6 +161,8 @@ docs/capturas/         Capturas de pantalla
 - **SQLite**: base de datos en un solo archivo.
 - **HTML + CSS**: diseño adaptado al móvil. Fuentes Inter y JetBrains Mono; paleta verde y blanco.
 - **Three.js**: dibuja el planeta 3D de la portada (se sirve desde `static/vendor/`).
+- **Pillow**: permite subir fotos de los productos.
+- **ZXing** y **Open Food Facts**: leer el código de barras y obtener los datos del producto.
 
 ### Uso de IA
 El código se ha desarrollado con ayuda de Claude (Anthropic) como herramienta de programación. El equipo ha definido la idea, las reglas de funcionamiento y el diseño, y se encarga de probar la app y gestionar el proyecto.

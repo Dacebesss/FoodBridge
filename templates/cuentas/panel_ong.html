@@ -20,10 +20,24 @@
   </div>
 {% else %}
   <span class="etiqueta ok">Entidad verificada</span>
-  <p class="titulo-bloque">Disponible cerca</p>
-  <div class="vacio">Aquí aparecerán los lotes que publiquen los comercios de la zona.</div>
-  <p class="titulo-bloque">Mis reservas</p>
-  <div class="vacio">No tenéis reservas activas.</div>
-  <p class="ayuda centrado">Reservar lotes y recibir el PIN llega en la próxima versión (semana 3).</p>
+
+  {% if reservas %}
+    <p class="titulo-bloque">Mis reservas · {{ reservas|length }}</p>
+    {% for lote in reservas %}
+      {% include "lotes/_tarjeta.html" with modo="reserva" %}
+    {% endfor %}
+  {% endif %}
+
+  <p class="titulo-bloque">Disponible en {{ user.municipio }}{% if disponibles %} · {{ disponibles|length }}{% endif %}</p>
+  {% for lote in disponibles %}
+    {% include "lotes/_tarjeta.html" with modo="disponible" %}
+  {% empty %}
+    <div class="vacio">Ahora mismo no hay lotes disponibles. Cuando un comercio publique, aparecerá aquí.</div>
+  {% endfor %}
+
+  <div class="estadisticas">
+    <div class="estadistica"><div class="n">{{ entregas.n }}</div><div class="l">lotes recogidos</div></div>
+    <div class="estadistica"><div class="n">{{ entregas.kg|floatformat:"-1" }}</div><div class="l">kg recibidos</div></div>
+  </div>
 {% endif %}
 {% endblock %}

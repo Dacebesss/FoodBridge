@@ -1,0 +1,80 @@
+{# Tarjeta de un lote. "modo" decide qué botones salen: publicado, por_recoger, disponible, reserva o historial. #}
+<article class="lote" id="lote-{{ lote.pk }}">
+  <div class="lote-cuerpo">
+    <div class="lote-foto">
+      {% if lote.imagen %}
+        <img src="{{ lote.imagen }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+      {% else %}
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.4 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      {% endif %}
+    </div>
+    <div class="lote-info">
+      <h3>{{ lote.nombre }}</h3>
+      <p class="lote-meta">{% if lote.marca %}{{ lote.marca }} · {% endif %}<span class="num">{{ lote.unidades }}</span> ud. · <span class="num">{{ lote.kg|floatformat:"-2" }}</span> kg</p>
+      <div class="lote-etiquetas">
+        {% if lote.tipo_fecha == "caducidad" %}
+          <span class="etiqueta espera">{% if lote.dias_restantes == 0 %}Caduca hoy{% else %}Caduca el {{ lote.fecha|date:"j M" }}{% endif %}</span>
+        {% else %}
+          <span class="etiqueta preferente">Consumo pref. {{ lote.fecha|date:"j M" }}</span>
+        {% endif %}
+        <span class="etiqueta neutra">{{ lote.get_categoria_display }}</span>
+      </div>
+    </div>
+  </div>
+
+  <dl class="lote-datos">
+    <div><dt>Recogida</dt><dd>{{ lote.recogida_inicio|date:"l j M" }}, {{ lote.recogida_inicio|time:"H:i" }}–{{ lote.recogida_fin|time:"H:i" }}</dd></div>
+    {% if modo == "disponible" or modo == "reserva" %}
+      <div><dt>Dónde</dt><dd>{{ lote.comercio.nombre_entidad }} · {{ lote.comercio.direccion }}</dd></div>
+    {% endif %}
+    {% if lote.alergenos %}<div><dt>Alérgenos</dt><dd>{{ lote.alergenos }}</dd></div>{% endif %}
+    {% if lote.observaciones %}<div><dt>Notas</dt><dd>{{ lote.observaciones }}</dd></div>{% endif %}
+    {% if modo == "por_recoger" %}<div><dt>Reservado por</dt><dd>{{ lote.entidad.nombre_entidad }}</dd></div>{% endif %}
+  </dl>
+
+  {% if modo == "publicado" %}
+    <form method="post" action="{% url 'lotes:retirar' lote.pk %}" class="lote-acciones">
+      {% csrf_token %}
+      <span class="ayuda">Esperando a que una entidad lo reserve.</span>
+      <button class="btn btn-borde btn-peque" type="submit">Retirar</button>
+    </form>
+
+  {% elif modo == "por_recoger" %}
+    <form method="post" action="{% url 'lotes:entregar' lote.pk %}" class="lote-pin">
+      {% csrf_token %}
+      <label for="pin-{{ lote.pk }}">PIN que te enseña la entidad</label>
+      <div class="fila-pin">
+        <input id="pin-{{ lote.pk }}" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required placeholder="····">
+        <button class="btn btn-verde" type="submit">Confirmar entrega</button>
+      </div>
+    </form>
+
+  {% elif modo == "disponible" %}
+    <form method="post" action="{% url 'lotes:reservar' lote.pk %}" class="lote-acciones">
+      {% csrf_token %}
+      <span class="ayuda">Al reservarlo, nadie más podrá cogerlo.</span>
+      <button class="btn btn-verde" type="submit">Reservar</button>
+    </form>
+
+  {% elif modo == "reserva" %}
+    <div class="lote-pin-ver">
+      <span>Enseña este PIN en la tienda</span>
+      <strong class="pin" aria-label="PIN {{ lote.pin }}">{{ lote.pin }}</strong>
+    </div>
+    <form method="post" action="{% url 'lotes:cancelar' lote.pk %}" class="lote-acciones">
+      {% csrf_token %}
+      <span class="ayuda">¿No podéis ir? Cancela para que otra entidad pueda recogerlo.</span>
+      <button class="btn btn-borde btn-peque" type="submit">Cancelar reserva</button>
+    </form>
+
+  {% elif modo == "historial" %}
+    <div class="lote-acciones">
+      {% if lote.estado == "entregado" %}
+        <span class="etiqueta ok">Entregado a {{ lote.entidad.nombre_entidad }} · {{ lote.entregado_en|date:"j M, H:i" }}</span>
+      {% else %}
+        <span class="etiqueta no">{{ lote.motivo_retirada|default:"Retirado" }}</span>
+        <a class="btn btn-borde btn-peque" href="{% url 'lotes:publicar' %}?copiar={{ lote.pk }}">Publicar de nuevo</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</article>

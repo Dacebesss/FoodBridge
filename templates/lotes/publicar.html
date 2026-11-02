@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Publicar lote · FoodBridge{% endblock %}
+{% block content %}
+<div class="saludo">
+  <h1>Publicar lote</h1>
+  <p>Escanea el código de barras y solo tendrás que completar la fecha y la recogida.</p>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="formulario-lote" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="aviso error">{{ form.non_field_errors.0 }}</div>{% endif %}
+  {% for oculto in form.hidden_fields %}{% for error in oculto.errors %}<div class="aviso error">{{ error }}</div>{% endfor %}{% endfor %}
+  {{ form.codigo_barras }}
+  {{ form.foto_url }}
+
+  {# --- Escáner: rellena el formulario con los datos de Open Food Facts --- #}
+  <section class="tarjeta escaner" id="escaner" aria-labelledby="titulo-escaner">
+    <div>
+      <h2 id="titulo-escaner">¿Tiene código de barras?</h2>
+      <p>Apunta con la cámara al código y rellenamos el producto por ti.</p>
+    </div>
+    <button class="btn btn-verde btn-bloque" type="button" id="escanear">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/></svg>
+      Escanear con la cámara
+    </button>
+    <div class="visor" id="visor" hidden>
+      <video id="video" playsinline muted></video>
+      <div class="marco" aria-hidden="true"></div>
+      <button class="btn btn-blanco btn-peque visor-cerrar" type="button" id="parar">Cerrar cámara</button>
+    </div>
+    <div class="codigo-manual">
+      <label class="ayuda" for="codigo-manual">¿Sin cámara? Escribe los números que hay debajo de las barras:</label>
+      <div class="fila-pin">
+        <input id="codigo-manual" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="8410000000000" value="{{ form.codigo_barras.value|default_if_none:'' }}">
+        <button class="btn btn-borde" type="button" id="buscar">Buscar</button>
+      </div>
+    </div>
+    <p class="estado-escaner" id="estado-escaner" role="status" aria-live="polite"></p>
+    <div class="producto-encontrado" id="encontrado" hidden>
+      <img id="encontrado-foto" alt="" referrerpolicy="no-referrer">
+      <div>
+        <b id="encontrado-nombre"></b>
+        <span class="ayuda">Datos de <a href="https://es.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (licencia ODbL). Revísalos antes de publicar.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="tarjeta formulario">
+    <h2><span class="paso-n">1</span>Producto</h2>
+    {% include "_campo.html" with field=form.nombre %}
+    <div class="dos-columnas">
+      {% include "_campo.html" with field=form.marca %}
+      {% include "_campo.html" with field=form.categoria %}
+    </div>
+    <div class="campo{% if form.foto.errors %} con-error{% endif %}">
+      <label for="{{ form.foto.id_for_label }}">Foto</label>
+      <div class="foto-previa" id="foto-previa"{% if not form.foto_url.value or form.foto_url.errors %} hidden{% endif %}>
+        <img id="foto-previa-img" src="{% if not form.foto_url.errors %}{{ form.foto_url.value|default_if_none:'' }}{% endif %}" alt="" referrerpolicy="no-referrer">
+        <span class="ayuda">Foto de Open Food Facts. Si prefieres, sube la tuya.</span>
+      </div>
+      {{ form.foto }}
+      {{ form.foto.errors }}
+    </div>
+    {% include "_campo.html" with field=form.alergenos %}
+  </section>
+
+  <section class="tarjeta formulario">
+    <h2><span class="paso-n">2</span>Cantidad</h2>
+    <div class="dos-columnas">
+      {% include "_campo.html" with field=form.unidades %}
+      {% include "_campo.html" with field=form.kg %}
+    </div>
+    <p class="ayuda" id="ayuda-kg" hidden></p>
+  </section>
+
+  <section class="tarjeta formulario">
+    <h2><span class="paso-n">3</span>Fecha del envase</h2>
+    <fieldset class="campo opciones-fecha{% if form.tipo_fecha.errors %} con-error{% endif %}">
+      <legend>¿Qué pone en el envase?<span class="obligatorio" aria-hidden="true"> *</span></legend>
+      {% for opcion in form.tipo_fecha %}
+        <label class="opcion">
+          {{ opcion.tag }}
+          <span>
+            <b>{{ opcion.choice_label }}</b>
+            <small>{% if opcion.data.value == "caducidad" %}«Fecha de caducidad». Pasada esa fecha no se puede donar.{% else %}«Consumir preferentemente antes de». Se puede donar aunque haya pasado.{% endif %}</small>
+          </span>
+        </label>
+      {% endfor %}
+      {{ form.tipo_fecha.errors }}
+    </fieldset>
+    {% include "_campo.html" with field=form.fecha %}
+  </section>
+
+  <section class="tarjeta formulario">
+    <h2><span class="paso-n">4</span>Recogida</h2>
+    <p class="ayuda">La entidad tiene que venir dentro de esta franja. Si no viene, la reserva se libera sola.</p>
+    {% include "_campo.html" with field=form.dia_recogida %}
+    <div class="dos-columnas">
+      {% include "_campo.html" with field=form.hora_desde %}
+      {% include "_campo.html" with field=form.hora_hasta %}
+    </div>
+    {% include "_campo.html" with field=form.observaciones %}
+  </section>
+
+  <button class="btn btn-verde btn-bloque" type="submit">Publicar lote</button>
+  <p class="ayuda centrado"><a href="{% url 'cuentas:panel' %}">Volver a mi panel</a></p>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/zxing.min.js' %}" defer></script>
+<script src="{% static 'js/escaner.js' %}" defer></script>
+{% endblock %}
