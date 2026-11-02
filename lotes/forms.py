@@ -13,6 +13,17 @@ PREFIJO_FOTOS_OFF = "https://images.openfoodfacts.org/"
 TAMANO_MAX_FOTO = 5 * 1024 * 1024  # 5 MB
 
 
+def digito_de_control_correcto(codigo):
+    """
+    El último número de un código de barras (EAN/UPC) se calcula con los demás:
+    se multiplican alternando por 3 y por 1 empezando por la derecha, y se mira
+    cuánto falta para llegar a la siguiente decena.
+    """
+    cifras = [int(c) for c in codigo]
+    suma = sum(c * (3 if i % 2 == 0 else 1) for i, c in enumerate(reversed(cifras[:-1])))
+    return (10 - suma % 10) % 10 == cifras[-1]
+
+
 class LoteForm(forms.ModelForm):
     # La franja de recogida se pide como "día + desde + hasta", que es más fácil de rellenar.
     dia_recogida = forms.DateField(
@@ -71,6 +82,8 @@ class LoteForm(forms.ModelForm):
         codigo = self.cleaned_data["codigo_barras"].strip()
         if codigo and not re.fullmatch(r"\d{8,14}", codigo):
             raise forms.ValidationError("El código de barras debe tener entre 8 y 14 números.")
+        if codigo and not digito_de_control_correcto(codigo):
+            raise forms.ValidationError("El código de barras no es válido (el último número no cuadra).")
         return codigo
 
     def clean_foto_url(self):

@@ -1,7 +1,9 @@
 /*
   FoodBridge · escáner de códigos de barras
   -----------------------------------------
-  1. Abre la cámara trasera del móvil y lee el código de barras (EAN-13, EAN-8, UPC).
+  1. Abre la cámara trasera del móvil y lee el código de barras (EAN-13, EAN-8, UPC-A).
+     Para evitar lecturas erróneas, solo acepta un código si su dígito de control
+     cuadra y si se ha leído dos veces seguidas igual.
      - Si el navegador sabe leer códigos por sí solo (Chrome en Android), usa eso.
      - Si no (iPhone, Firefox…), usa la librería ZXing, guardada en static/vendor/.
   2. Busca el código en Open Food Facts, una base de datos libre de alimentos.
@@ -38,6 +40,15 @@
 
   /* ---------- Cámara ---------- */
   var flujo = null, lectorZXing = null, buscando = false;
+  var ultimaLectura = null, vecesSeguidas = 0;
+
+  // Cada vez que la cámara "cree" ver un código, pasa por aquí.
+  function candidato(codigo) {
+    if (!digitoDeControlCorrecto(codigo)) return;   // lectura a medias: la ignoramos
+    if (codigo === ultimaLectura) vecesSeguidas++;
+    else { ultimaLectura = codigo; vecesSeguidas = 1; }
+    if (vecesSeguidas >= 2) leido(codigo);          // dos veces igual: lo damos por bueno
+  }
 
   function camaraDisponible() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext;
@@ -51,6 +62,7 @@
     }
     visor.hidden = false;
     botonEscanear.hidden = true;
+    ultimaLectura = null; vecesSeguidas = 0;
     avisar("Apunta al código de barras y mantén el móvil quieto…");
     try {
       if ("BarcodeDetector" in window) {
@@ -70,13 +82,14 @@
     flujo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
     video.srcObject = flujo;
     await video.play();
-    var detector = new window.BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e"] });
+    var detector = new window.BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a"] });
     buscando = true;
     (async function mirar() {
       if (!buscando) return;
       try {
         var codigos = await detector.detect(video);
-        if (codigos.length) { leido(codigos[0].rawValue); return; }
+        codigos.forEach(function (c) { candidato(c.rawValue); });
+        if (!buscando) return;
       } catch (e) { /* fotograma sin datos: seguimos */ }
       setTimeout(mirar, 150);
     })();
@@ -85,11 +98,11 @@
   function conZXing() {
     var Z = window.ZXing;
     var pistas = new Map();
-    pistas.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E]);
+    pistas.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A]);
     lectorZXing = new Z.BrowserMultiFormatReader(pistas, 200);
     buscando = true;
     return lectorZXing.decodeFromConstraints({ video: { facingMode: { ideal: "environment" } }, audio: false }, video, function (resultado) {
-      if (resultado && buscando) leido(resultado.getText());
+      if (resultado && buscando) candidato(resultado.getText());
     });
   }
 
@@ -131,9 +144,19 @@
 
   function codigoValido(c) { return /^\d{8,14}$/.test(c); }
 
+  // El último número de un código de barras es un "dígito de control" que se calcula con los demás.
+  // Si no cuadra, el código está mal leído o mal escrito.
+  function digitoDeControlCorrecto(c) {
+    if (!codigoValido(c)) return false;
+    var suma = 0;
+    for (var i = c.length - 2, peso = 3; i >= 0; i--, peso = 4 - peso) suma += parseInt(c[i], 10) * peso;
+    return (10 - (suma % 10)) % 10 === parseInt(c[c.length - 1], 10);
+  }
+
   async function buscar(codigo) {
     codigo = (codigo || "").trim();
     if (!codigoValido(codigo)) { avisar("El código debe tener entre 8 y 14 números.", "error"); return; }
+    if (!digitoDeControlCorrecto(codigo)) { avisar("Ese código no es válido: revisa que todos los números estén bien escritos.", "error"); return; }
     campos.codigo.value = codigo;
     avisar("Buscando el producto…");
     botonBuscar.disabled = true;

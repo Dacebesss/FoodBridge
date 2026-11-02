@@ -55,7 +55,7 @@ class PublicarTests(TestCase):
         self.client.force_login(self.comercio)
 
     def test_comercio_publica_un_lote(self):
-        r = self.client.post(reverse("lotes:publicar"), datos_formulario(codigo_barras="8410000000000"))
+        r = self.client.post(reverse("lotes:publicar"), datos_formulario(codigo_barras="3017624010701"))
         self.assertRedirects(r, reverse("cuentas:panel"))
         lote = Lote.objects.get()
         self.assertEqual(lote.estado, Lote.Estado.DISPONIBLE)
@@ -213,3 +213,9 @@ class FormularioTests(TestCase):
     def test_tipo_de_fecha_sin_opcion_vacia(self):
         r = self.client.get(reverse("lotes:publicar"))
         self.assertNotContains(r, "---------")
+
+    def test_codigo_de_barras_con_digito_de_control_erroneo(self):
+        # 3017624010701 es correcto; cambiando el último número deja de cuadrar.
+        r = self.client.post(reverse("lotes:publicar"), datos_formulario(codigo_barras="3017624010702"))
+        self.assertContains(r, "no es válido")
+        self.assertFalse(Lote.objects.exists())
