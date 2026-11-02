@@ -4,99 +4,102 @@
 {% block content %}
 <div class="saludo">
   <h1>Publicar lote</h1>
-  <p>Escanea el código de barras y solo tendrás que completar la fecha y la recogida.</p>
+  <p>Pasa los productos por la cámara uno detrás de otro. Al final, pon la fecha y la hora de recogida.</p>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="formulario-lote" novalidate>
+<form method="post" enctype="multipart/form-data" class="formulario-lote" id="formulario-lote" novalidate>
   {% csrf_token %}
   {% if form.non_field_errors %}<div class="aviso error">{{ form.non_field_errors.0 }}</div>{% endif %}
-  {% for oculto in form.hidden_fields %}{% for error in oculto.errors %}<div class="aviso error">{{ error }}</div>{% endfor %}{% endfor %}
-  {{ form.codigo_barras }}
-  {{ form.foto_url }}
+  {% for error in form.productos.errors %}<div class="aviso error">{{ error }}</div>{% endfor %}
+  {{ form.productos }}
 
-  {# --- Escáner: rellena el formulario con los datos de Open Food Facts --- #}
+  {# --- 1. Productos: el escáner va añadiendo productos a la lista --- #}
   <section class="tarjeta escaner" id="escaner" aria-labelledby="titulo-escaner">
-    <div>
-      <h2 id="titulo-escaner">¿Tiene código de barras?</h2>
-      <p>Apunta con la cámara al código y rellenamos el producto por ti.</p>
-    </div>
+    <h2 id="titulo-escaner"><span class="paso-n">1</span>Productos</h2>
+    <p>Apunta al código de barras. Cada producto que leas se añade a la lista. Si pasas otra vez el mismo, suma una unidad.</p>
     <button class="btn btn-verde btn-bloque" type="button" id="escanear">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/></svg>
-      Escanear con la cámara
+      Escanear productos
     </button>
     <div class="visor" id="visor" hidden>
       <video id="video" playsinline muted></video>
       <div class="marco" aria-hidden="true"></div>
+      <p class="aviso-visor" id="aviso-visor" aria-live="polite" hidden></p>
       <div class="visor-botones">
         <button class="btn btn-linea btn-peque" type="button" id="linterna" aria-pressed="false" hidden>Linterna</button>
-        <button class="btn btn-blanco btn-peque" type="button" id="parar">Cerrar cámara</button>
+        <button class="btn btn-blanco btn-peque" type="button" id="parar">Listo</button>
       </div>
     </div>
     <div class="codigo-manual">
-      <label class="ayuda" for="codigo-manual">¿Sin cámara? Escribe los números que hay debajo de las barras:</label>
+      <label class="ayuda" for="codigo-manual">¿Sin cámara o no lo lee? Escribe los números del código:</label>
       <div class="fila-pin">
-        <input id="codigo-manual" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="8410000000000" value="{{ form.codigo_barras.value|default_if_none:'' }}">
-        <button class="btn btn-borde" type="button" id="buscar">Buscar</button>
+        <input id="codigo-manual" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="8410000000000">
+        <button class="btn btn-borde" type="button" id="buscar">Añadir</button>
+      </div>
+    </div>
+    <div class="rapidos">
+      <span class="ayuda">Sin código de barras:</span>
+      <div class="rapidos-botones">
+        <button class="chip-rapido" type="button" data-nombre="Pan" data-categoria="pan_bolleria">＋ Pan</button>
+        <button class="chip-rapido" type="button" data-nombre="Bollería" data-categoria="pan_bolleria">＋ Bollería</button>
+        <button class="chip-rapido" type="button" data-nombre="Fruta variada" data-categoria="fruta_verdura">＋ Fruta</button>
+        <button class="chip-rapido" type="button" data-nombre="Verdura variada" data-categoria="fruta_verdura">＋ Verdura</button>
+        <button class="chip-rapido" type="button" data-nombre="" data-categoria="">＋ Otro</button>
       </div>
     </div>
     <p class="estado-escaner" id="estado-escaner" role="status" aria-live="polite"></p>
-    <div class="producto-encontrado" id="encontrado" hidden>
-      <img id="encontrado-foto" alt="" referrerpolicy="no-referrer">
-      <div>
-        <b id="encontrado-nombre"></b>
-        <span class="ayuda">Datos de <a href="https://es.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (licencia ODbL). Revísalos antes de publicar.</span>
-      </div>
-    </div>
   </section>
 
-  <section class="tarjeta formulario">
-    <h2><span class="paso-n">1</span>Producto</h2>
+  <section class="tarjeta lista-lote" aria-labelledby="titulo-lista">
+    <div class="lista-cabeza">
+      <h2 id="titulo-lista">En este lote</h2>
+      <span class="total num" id="total">0 productos</span>
+    </div>
+    <p class="vacio-lista" id="lista-vacia">Todavía no hay productos. Escanea el primero o usa los botones rápidos.</p>
+    <ul class="lista-productos" id="lista-productos"></ul>
     {% include "_campo.html" with field=form.nombre %}
-    <div class="dos-columnas">
-      {% include "_campo.html" with field=form.marca %}
-      {% include "_campo.html" with field=form.categoria %}
-    </div>
-    <div class="campo{% if form.foto.errors %} con-error{% endif %}">
-      <label for="{{ form.foto.id_for_label }}">Foto</label>
-      <div class="foto-previa" id="foto-previa"{% if not form.foto_url.value or form.foto_url.errors %} hidden{% endif %}>
-        <img id="foto-previa-img" src="{% if not form.foto_url.errors %}{{ form.foto_url.value|default_if_none:'' }}{% endif %}" alt="" referrerpolicy="no-referrer">
-        <span class="ayuda">Foto de Open Food Facts. Si prefieres, sube la tuya.</span>
-      </div>
-      {{ form.foto }}
-      {{ form.foto.errors }}
-    </div>
-    {% include "_campo.html" with field=form.alergenos %}
+    <p class="ayuda">Los datos de los productos escaneados vienen de <a href="https://es.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (licencia ODbL). Revísalos antes de publicar.</p>
   </section>
 
+  {# --- 2. Fecha: una sola para todo el lote --- #}
   <section class="tarjeta formulario">
-    <h2><span class="paso-n">2</span>Cantidad</h2>
-    <div class="dos-columnas">
-      {% include "_campo.html" with field=form.unidades %}
-      {% include "_campo.html" with field=form.kg %}
-    </div>
-    <p class="ayuda" id="ayuda-kg" hidden></p>
-  </section>
-
-  <section class="tarjeta formulario">
-    <h2><span class="paso-n">3</span>Fecha del envase</h2>
+    <h2><span class="paso-n">2</span>Fecha</h2>
     <fieldset class="campo opciones-fecha{% if form.tipo_fecha.errors %} con-error{% endif %}">
       <legend>¿Qué pone en el envase?<span class="obligatorio" aria-hidden="true"> *</span></legend>
       {% for opcion in form.tipo_fecha %}
         <label class="opcion">
           {{ opcion.tag }}
           <span>
-            <b>{{ opcion.choice_label }}</b>
-            <small>{% if opcion.data.value == "caducidad" %}«Fecha de caducidad». Pasada esa fecha no se puede donar.{% else %}«Consumir preferentemente antes de». Se puede donar aunque haya pasado.{% endif %}</small>
+            {% if opcion.data.value == "preferente" %}
+              <b>«Consumir preferentemente antes de…»</b>
+              <small>Lo más habitual. Se puede donar aunque la fecha ya haya pasado.</small>
+            {% elif opcion.data.value == "caducidad" %}
+              <b>«Fecha de caducidad»</b>
+              <small>Carne, pescado, algunos lácteos… Pasada esa fecha no se puede donar.</small>
+            {% else %}
+              <b>Fresco, sin fecha</b>
+              <small>Fruta, verdura o pan del día que no traen fecha.</small>
+            {% endif %}
           </span>
         </label>
       {% endfor %}
       {{ form.tipo_fecha.errors }}
     </fieldset>
-    {% include "_campo.html" with field=form.fecha %}
+    <div class="campo{% if form.fecha.errors %} con-error{% endif %}" id="campo-fecha">
+      <label for="{{ form.fecha.id_for_label }}" id="etiqueta-fecha">¿Qué fecha pone?</label>
+      {{ form.fecha }}
+      {{ form.fecha.errors }}
+      <ul class="ayuda pistas-fecha">
+        <li>Si hay varios productos, pon <b>la que vence antes</b>.</li>
+        <li>Si el envase dice «ver tapa», «ver cuello» o «ver base», la fecha está impresa allí.</li>
+        <li>Si solo pone mes y año, elige el último día de ese mes.</li>
+      </ul>
+    </div>
   </section>
 
+  {# --- 3. Recogida --- #}
   <section class="tarjeta formulario">
-    <h2><span class="paso-n">4</span>Recogida</h2>
+    <h2><span class="paso-n">3</span>Recogida</h2>
     <p class="ayuda">La entidad tiene que venir dentro de esta franja. Si no viene, la reserva se libera sola.</p>
     {% include "_campo.html" with field=form.dia_recogida %}
     <div class="dos-columnas">
@@ -104,11 +107,45 @@
       {% include "_campo.html" with field=form.hora_hasta %}
     </div>
     {% include "_campo.html" with field=form.observaciones %}
+    {% include "_campo.html" with field=form.foto %}
   </section>
 
-  <button class="btn btn-verde btn-bloque" type="submit">Publicar lote</button>
+  <button class="btn btn-verde btn-bloque" type="submit" id="publicar">Publicar lote</button>
   <p class="ayuda centrado"><a href="{% url 'cuentas:panel' %}">Volver a mi panel</a></p>
 </form>
+
+{# Plantilla de una fila de la lista. El JavaScript la copia por cada producto. #}
+<template id="plantilla-producto">
+  <li class="producto">
+    <div class="producto-foto"><img alt="" referrerpolicy="no-referrer" hidden></div>
+    <div class="producto-datos">
+      <input class="producto-nombre" type="text" maxlength="120" placeholder="Nombre del producto" aria-label="Nombre del producto">
+      <span class="producto-detalle ayuda"></span>
+      <select class="producto-categoria" aria-label="Categoría" hidden>
+        <option value="">Elige categoría</option>
+        <option value="fruta_verdura">Fruta y verdura</option>
+        <option value="pan_bolleria">Pan y bollería</option>
+        <option value="lacteos">Lácteos y huevos</option>
+        <option value="carne_pescado">Carne y pescado</option>
+        <option value="platos">Platos preparados</option>
+        <option value="despensa">Despensa</option>
+        <option value="congelados">Congelados</option>
+        <option value="bebidas">Bebidas</option>
+        <option value="otros">Otros</option>
+      </select>
+      <div class="producto-cantidad">
+        <div class="contador" role="group" aria-label="Unidades">
+          <button type="button" class="menos" aria-label="Quitar una unidad">−</button>
+          <span class="unidades num" aria-live="polite">1</span>
+          <button type="button" class="mas" aria-label="Añadir una unidad">+</button>
+        </div>
+        <label class="peso"><input class="producto-kg" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,0" aria-label="Peso total en kg"><span>kg</span></label>
+      </div>
+      <span class="producto-error" hidden></span>
+    </div>
+    <button type="button" class="quitar" aria-label="Quitar de la lista">×</button>
+  </li>
+</template>
 {% endblock %}
 
 {% block scripts %}

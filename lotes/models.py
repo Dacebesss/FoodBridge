@@ -1,8 +1,9 @@
 """
 Modelo de la app "lotes".
 
-Un lote es un grupo de productos que un comercio dona de una vez,
-por ejemplo "6 packs de yogures que caducan el viernes".
+Un lote es lo que un comercio dona de una vez: puede ser un solo producto
+("6 packs de yogures") o una caja con varios ("yogures, pan y fruta").
+Cada producto de dentro se guarda en ProductoLote.
 """
 
 from django.conf import settings
@@ -21,12 +22,15 @@ class Lote(models.Model):
         CONGELADOS = "congelados", "Congelados"
         BEBIDAS = "bebidas", "Bebidas"
         OTROS = "otros", "Otros"
+        VARIADO = "variado", "Variado"
 
     class TipoFecha(models.TextChoices):
         # Pasada la fecha de caducidad NO se puede donar (riesgo para la salud).
         CADUCIDAD = "caducidad", "Fecha de caducidad"
         # Pasada la de consumo preferente SÍ se puede donar (solo pierde calidad).
         PREFERENTE = "preferente", "Consumo preferente"
+        # Fruta, verdura o pan del día: no traen fecha. Se toma el día de recogida.
+        FRESCO = "fresco", "Fresco sin fecha"
 
     class Estado(models.TextChoices):
         DISPONIBLE = "disponible", "Disponible"
@@ -40,7 +44,8 @@ class Lote(models.Model):
         related_name="lotes_publicados", verbose_name="comercio",
     )
 
-    # --- Qué es (se puede rellenar solo escaneando el código de barras) ---
+    # --- Resumen de lo que contiene. Se calcula solo a partir de sus productos
+    #     (ver ProductoLote): así las tarjetas y las búsquedas son sencillas. ---
     codigo_barras = models.CharField("código de barras", max_length=14, blank=True)
     nombre = models.CharField("producto", max_length=120)
     marca = models.CharField("marca", max_length=80, blank=True)
@@ -111,3 +116,52 @@ class Lote(models.Model):
         if self.foto:
             return self.foto.url
         return self.foto_url
+
+    def resumir(self, productos):
+        """Rellena el resumen del lote (nombre, kilos, alérgenos…) a partir de sus productos."""
+        nombres = [p.nombre for p in productos]
+        if not self.nombre:
+            if len(nombres) == 1:
+                self.nombre = nombres[0]
+            elif len(nombres) == 2:
+                self.nombre = f"{nombres[0]} y {nombres[1]}"
+            else:
+                self.nombre = f"{nombres[0]}, {nombres[1]} y {len(nombres) - 2} más"
+            self.nombre = self.nombre[:120]
+        self.unidades = sum(p.unidades for p in productos)
+        self.kg = sum(p.kg for p in productos)
+        categorias = {p.categoria for p in productos}
+        self.categoria = categorias.pop() if len(categorias) == 1 else self.Categoria.VARIADO
+        solo_uno = len(productos) == 1
+        self.codigo_barras = productos[0].codigo_barras if solo_uno else ""
+        self.marca = productos[0].marca if solo_uno else ""
+        self.foto_url = next((p.foto_url for p in productos if p.foto_url), "")
+        alergenos = []
+        for p in productos:
+            for a in p.alergenos.split(","):
+                a = a.strip().lower()
+                if a and a not in alergenos:
+                    alergenos.append(a)
+        self.alergenos = ", ".join(alergenos)[:200]
+
+
+class ProductoLote(models.Model):
+    """Un producto dentro de un lote. Por ejemplo: 3 × Yogur natural, 1,5 kg."""
+
+    lote = models.ForeignKey(Lote, on_delete=models.CASCADE, related_name="productos")
+    codigo_barras = models.CharField("código de barras", max_length=14, blank=True)
+    nombre = models.CharField("producto", max_length=120)
+    marca = models.CharField("marca", max_length=80, blank=True)
+    categoria = models.CharField("categoría", max_length=20, choices=Lote.Categoria.choices)
+    foto_url = models.URLField("foto de Open Food Facts", blank=True)
+    alergenos = models.CharField("alérgenos", max_length=200, blank=True)
+    unidades = models.PositiveIntegerField("unidades")
+    kg = models.DecimalField("peso (kg)", max_digits=6, decimal_places=2)
+
+    class Meta:
+        verbose_name = "producto del lote"
+        verbose_name_plural = "productos del lote"
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.unidades} × {self.nombre}"

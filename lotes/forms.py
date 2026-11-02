@@ -1,16 +1,25 @@
-"""Formulario para publicar un lote."""
+"""
+Formulario para publicar un lote (un producto o una caja con varios).
+
+La lista de productos la va llenando el escáner en el navegador y llega aquí
+como texto JSON en el campo oculto "productos". Aquí se vuelve a comprobar todo:
+nunca nos fiamos de lo que manda el navegador.
+"""
 
 import datetime
+import json
 import re
+from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.utils import timezone
 
-from .models import Lote
+from .models import Lote, ProductoLote
 
 # Solo aceptamos fotos que vengan de Open Food Facts (no cualquier enlace de internet).
 PREFIJO_FOTOS_OFF = "https://images.openfoodfacts.org/"
 TAMANO_MAX_FOTO = 5 * 1024 * 1024  # 5 MB
+MAX_PRODUCTOS = 100
 
 
 def digito_de_control_correcto(codigo):
@@ -24,73 +33,95 @@ def digito_de_control_correcto(codigo):
     return (10 - suma % 10) % 10 == cifras[-1]
 
 
+def limpiar_producto(datos, n):
+    """Comprueba un producto de la lista. Devuelve un ProductoLote sin guardar o lanza un error."""
+    if not isinstance(datos, dict):
+        raise forms.ValidationError(f"El producto {n} no es válido.")
+    texto = lambda clave, largo: str(datos.get(clave) or "").strip()[:largo]
+
+    nombre = texto("nombre", 120)
+    if not nombre:
+        raise forms.ValidationError(f"Al producto {n} le falta el nombre.")
+    codigo = texto("codigo_barras", 14)
+    if codigo and not (re.fullmatch(r"\d{8,14}", codigo) and digito_de_control_correcto(codigo)):
+        raise forms.ValidationError(f"El código de barras de «{nombre}» no es válido.")
+    categoria = texto("categoria", 20) or Lote.Categoria.OTROS
+    if categoria not in Lote.Categoria.values or categoria == Lote.Categoria.VARIADO:
+        raise forms.ValidationError(f"La categoría de «{nombre}» no es válida.")
+    foto_url = texto("foto_url", 300)
+    if foto_url and not foto_url.startswith(PREFIJO_FOTOS_OFF):
+        raise forms.ValidationError("La foto automática solo puede venir de Open Food Facts.")
+    try:
+        unidades = int(datos.get("unidades"))
+    except (TypeError, ValueError):
+        unidades = 0
+    if not 1 <= unidades <= 999:
+        raise forms.ValidationError(f"«{nombre}» tiene que tener al menos 1 unidad.")
+    try:
+        kg = Decimal(str(datos.get("kg")).replace(",", ".")).quantize(Decimal("0.01"))
+    except (InvalidOperation, ValueError):
+        kg = Decimal(0)
+    if not Decimal("0.01") <= kg <= Decimal("999.99"):
+        raise forms.ValidationError(f"Indica el peso de «{nombre}» (mayor que 0).")
+
+    return ProductoLote(
+        nombre=nombre, codigo_barras=codigo, marca=texto("marca", 80), categoria=categoria,
+        foto_url=foto_url, alergenos=texto("alergenos", 200), unidades=unidades, kg=kg,
+    )
+
+
 class LoteForm(forms.ModelForm):
+    productos = forms.CharField(widget=forms.HiddenInput, required=False)
     # La franja de recogida se pide como "día + desde + hasta", que es más fácil de rellenar.
     dia_recogida = forms.DateField(
-        label="Día de recogida", widget=forms.DateInput(attrs={"type": "date"})
+        label="Día", widget=forms.DateInput(attrs={"type": "date"})
     )
     hora_desde = forms.TimeField(label="Desde", widget=forms.TimeInput(attrs={"type": "time"}))
     hora_hasta = forms.TimeField(label="Hasta", widget=forms.TimeInput(attrs={"type": "time"}))
 
     class Meta:
         model = Lote
-        fields = [
-            "codigo_barras", "nombre", "marca", "categoria", "foto", "foto_url",
-            "unidades", "kg", "tipo_fecha", "fecha", "alergenos", "observaciones",
-        ]
+        fields = ["nombre", "foto", "tipo_fecha", "fecha", "observaciones"]
+        labels = {
+            "nombre": "Nombre del lote (opcional)",
+            "foto": "Foto (opcional)",
+            "fecha": "Fecha",
+        }
         widgets = {
-            "codigo_barras": forms.HiddenInput(),
-            "foto_url": forms.HiddenInput(),
-            "nombre": forms.TextInput(attrs={"placeholder": "Yogures naturales"}),
-            "marca": forms.TextInput(attrs={"placeholder": "Opcional"}),
-            "foto": forms.ClearableFileInput(attrs={"accept": "image/*", "capture": "environment"}),
-            "unidades": forms.NumberInput(attrs={"min": 1, "inputmode": "numeric"}),
-            "kg": forms.NumberInput(attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}),
+            "nombre": forms.TextInput(attrs={"placeholder": "Se pone solo con los productos"}),
+            "foto": forms.ClearableFileInput(attrs={"accept": "image/*"}),
             "tipo_fecha": forms.RadioSelect,
             "fecha": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
-            "alergenos": forms.TextInput(attrs={"placeholder": "Leche, gluten… (si se sabe)"}),
-            "observaciones": forms.TextInput(attrs={"placeholder": "Mantener en frío"}),
+            "observaciones": forms.TextInput(attrs={"placeholder": "Traer cajas, mantener en frío…"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, franja_habitual=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.is_bound and "dia_recogida" not in self.initial:
-            # Por defecto: hoy por la tarde ("publicar, reservar y entregar en la misma tarde").
-            self.initial["dia_recogida"] = timezone.localdate().isoformat()
-            self.initial["hora_desde"] = "18:00"
-            self.initial["hora_hasta"] = "20:00"
-        self.fields["categoria"].choices = [("", "Elige una categoría")] + list(
-            Lote.Categoria.choices
-        )
-        # Sin opción vacía "---------": hay que elegir uno de los dos tipos de fecha.
-        self.fields["tipo_fecha"].choices = Lote.TipoFecha.choices
-        self.fields["unidades"].widget.attrs["min"] = 1
+        if not self.is_bound:
+            # Por defecto: hoy, en la franja que esta tienda usó la última vez (o de 18:00 a 20:00).
+            desde, hasta = franja_habitual or ("18:00", "20:00")
+            self.initial.setdefault("dia_recogida", timezone.localdate().isoformat())
+            self.initial.setdefault("hora_desde", desde)
+            self.initial.setdefault("hora_hasta", hasta)
+        self.fields["nombre"].required = False
+        self.fields["fecha"].required = False  # los frescos no tienen fecha
+        # Sin opción vacía "---------"; primero la más habitual en los envases.
+        T = Lote.TipoFecha
+        self.fields["tipo_fecha"].choices = [(t.value, t.label) for t in (T.PREFERENTE, T.CADUCIDAD, T.FRESCO)]
+        self.productos_limpios = []
 
-    def clean_unidades(self):
-        unidades = self.cleaned_data["unidades"]
-        if unidades < 1:
-            raise forms.ValidationError("Tiene que haber al menos 1 unidad.")
-        return unidades
-
-    def clean_kg(self):
-        kg = self.cleaned_data["kg"]
-        if kg <= 0:
-            raise forms.ValidationError("El peso tiene que ser mayor que 0.")
-        return kg
-
-    def clean_codigo_barras(self):
-        codigo = self.cleaned_data["codigo_barras"].strip()
-        if codigo and not re.fullmatch(r"\d{8,14}", codigo):
-            raise forms.ValidationError("El código de barras debe tener entre 8 y 14 números.")
-        if codigo and not digito_de_control_correcto(codigo):
-            raise forms.ValidationError("El código de barras no es válido (el último número no cuadra).")
-        return codigo
-
-    def clean_foto_url(self):
-        url = self.cleaned_data["foto_url"]
-        if url and not url.startswith(PREFIJO_FOTOS_OFF):
-            raise forms.ValidationError("La foto automática solo puede venir de Open Food Facts.")
-        return url
+    def clean_productos(self):
+        texto = self.cleaned_data.get("productos") or "[]"
+        try:
+            lista = json.loads(texto)
+        except json.JSONDecodeError:
+            raise forms.ValidationError("No hemos podido leer la lista de productos. Vuelve a intentarlo.")
+        if not isinstance(lista, list) or not lista:
+            raise forms.ValidationError("Añade al menos un producto: escanéalo o usa los botones rápidos.")
+        if len(lista) > MAX_PRODUCTOS:
+            raise forms.ValidationError(f"Como máximo {MAX_PRODUCTOS} productos por lote.")
+        self.productos_limpios = [limpiar_producto(p, n) for n, p in enumerate(lista, start=1)]
+        return texto
 
     def clean_foto(self):
         foto = self.cleaned_data.get("foto")
@@ -104,8 +135,13 @@ class LoteForm(forms.ModelForm):
         tipo, fecha = datos.get("tipo_fecha"), datos.get("fecha")
         dia, desde, hasta = datos.get("dia_recogida"), datos.get("hora_desde"), datos.get("hora_hasta")
 
+        if tipo == Lote.TipoFecha.FRESCO:
+            # Sin fecha en el envase: cuenta como fecha el día de recogida.
+            datos["fecha"] = fecha = dia
+        elif tipo and not fecha:
+            self.add_error("fecha", "Pon la fecha que aparece en el envase.")
         # Regla 1: pasada la fecha de caducidad no se puede donar.
-        if tipo == Lote.TipoFecha.CADUCIDAD and fecha and fecha < hoy:
+        elif tipo == Lote.TipoFecha.CADUCIDAD and fecha < hoy:
             self.add_error("fecha", "Este producto ya ha caducado: no se puede donar.")
 
         if dia and desde and hasta:
@@ -125,9 +161,28 @@ class LoteForm(forms.ModelForm):
         return datos
 
     def save(self, commit=True):
+        """Guarda el lote y sus productos. Llamar dentro de transaction.atomic()."""
         lote = super().save(commit=False)
+        lote.fecha = self.cleaned_data["fecha"]
         lote.recogida_inicio = self.cleaned_data["recogida_inicio"]
         lote.recogida_fin = self.cleaned_data["recogida_fin"]
+        lote.resumir(self.productos_limpios)
         if commit:
             lote.save()
+            self.guardar_productos(lote)
         return lote
+
+    def guardar_productos(self, lote):
+        for producto in self.productos_limpios:
+            producto.lote = lote
+        ProductoLote.objects.bulk_create(self.productos_limpios)
+
+
+def productos_a_json(lote):
+    """Convierte los productos de un lote en el texto JSON que entiende la página (para «Publicar de nuevo»)."""
+    return json.dumps([
+        {"codigo_barras": p.codigo_barras, "nombre": p.nombre, "marca": p.marca,
+         "categoria": p.categoria, "foto_url": p.foto_url, "alergenos": p.alergenos,
+         "unidades": p.unidades, "kg": str(p.kg)}
+        for p in lote.productos.all()
+    ], ensure_ascii=False)
