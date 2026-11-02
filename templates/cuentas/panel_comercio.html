@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Mi panel · FoodBridge{% endblock %}
+{% block content %}
+<div class="hello">
+  <h1>Hola, {{ user.nombre_entidad }}</h1>
+  <p>{{ user.direccion }} · {{ user.municipio }}</p>
+</div>
+
+<button class="btn accent block" type="button" disabled title="Disponible en la próxima versión">＋ Publicar excedente</button>
+
+<div class="sec">Por recoger</div>
+<div class="empty">Aquí verás los lotes que una ONG ha reservado y podrás validar su PIN.</div>
+
+<div class="sec">Publicados</div>
+<div class="empty">Todavía no has publicado nada.</div>
+
+<p class="help" style="text-align:center">Publicar lotes y validar PIN llega en la próxima versión (semana 3).</p>
+{% endblock %}

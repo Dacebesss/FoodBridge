@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Mi panel · FoodBridge{% endblock %}
+{% block content %}
+<div class="hello">
+  <h1>Hola, {{ user.nombre_entidad }}</h1>
+  <p>{{ user.direccion }} · {{ user.municipio }}</p>
+</div>
+
+{% if user.estado == "pendiente" %}
+  <div class="card">
+    <span class="badge b-wait" style="align-self:flex-start">Pendiente de revisión</span>
+    <h2>Estamos revisando vuestra cuenta</h2>
+    <p>Comprobamos el nº de registro <b>{{ user.registro_oficial }}</b> para confirmar que sois una ONG o comedor social. Cuando lo aprobemos podréis reservar comida.</p>
+  </div>
+{% elif user.estado == "rechazado" %}
+  <div class="card">
+    <span class="badge b-no" style="align-self:flex-start">Cuenta no aprobada</span>
+    <h2>No hemos podido verificar vuestra entidad</h2>
+    <p>Revisad el nº de registro o escribidnos para que lo comprobemos de nuevo.</p>
+  </div>
+{% else %}
+  <span class="badge b-ok" style="align-self:flex-start">ONG verificada</span>
+  <div class="sec">Disponible cerca</div>
+  <div class="empty">Aquí aparecerán los lotes que publiquen los comercios de la zona.</div>
+  <div class="sec">Mis reservas</div>
+  <div class="empty">No tenéis reservas activas.</div>
+  <p class="help" style="text-align:center">Reservar lotes y recibir el PIN llega en la próxima versión (semana 3).</p>
+{% endif %}
+{% endblock %}

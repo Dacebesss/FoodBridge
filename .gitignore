@@ -1,0 +1,17 @@
+# Entorno virtual de Python (cada uno tiene el suyo)
+.venv/
+venv/
+
+# Base de datos local (cada uno tiene la suya)
+db.sqlite3
+
+# Archivos generados
+__pycache__/
+*.pyc
+staticfiles/
+media/
+
+# Configuración de PyCharm y del sistema
+.idea/
+.DS_Store
+Thumbs.db

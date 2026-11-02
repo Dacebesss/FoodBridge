@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block main_class %}wide{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>La comida que sobra, <span>en la mesa de quien la necesita</span></h1>
+    <p class="lead">FoodBridge conecta los comercios de Villaviciosa de Odón con comedores sociales y ONG para que el excedente del día no acabe en la basura.</p>
+    <div class="ctas">
+      <a class="btn" href="{% url 'cuentas:registro_elegir' %}">Crear cuenta</a>
+      <a class="btn ghost" href="{% url 'cuentas:login' %}">Ya tengo cuenta</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div><b>El comercio publica</b><span>Foto, cantidad y fecha del producto que va a caducar.</span></div></div>
+      <div class="step"><div class="num">2</div><div><b>La ONG reserva</b><span>Nadie más puede reservarlo y recibe un PIN de 4 dígitos.</span></div></div>
+      <div class="step"><div class="num">3</div><div><b>Recogida con PIN</b><span>En la tienda se valida el PIN y la donación queda registrada.</span></div></div>
+    </div>
+  </div>
+</section>
+{% endblock %}
