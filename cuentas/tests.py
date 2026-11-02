@@ -72,3 +72,13 @@ class PanelTests(TestCase):
             follow=True,
         )
         self.assertContains(respuesta, "Hola, Supermercado Plaza")
+
+
+class PortadaTests(TestCase):
+    def test_portada_carga_el_planeta(self):
+        respuesta = self.client.get(reverse("inicio"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'id="globo"')
+        # Three.js se sirve desde nuestro propio proyecto, no desde otra web
+        self.assertContains(respuesta, "/static/vendor/three.min.js")
+        self.assertContains(respuesta, reverse("cuentas:registro", args=["comercio"]))

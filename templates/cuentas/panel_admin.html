@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Administración · FoodBridge{% endblock %}
 {% block content %}
-<div class="hello">
-  <h1>Panel FoodBridge</h1>
+<div class="saludo">
+  <h1>Panel de administración</h1>
   <p>Zona piloto: Villaviciosa de Odón</p>
 </div>
 
-<div class="stats">
-  <div class="stat"><div class="n">{{ num_comercios }}</div><div class="l">comercios registrados</div></div>
-  <div class="stat"><div class="n">{{ num_ong }}</div><div class="l">ONG verificadas</div></div>
+<div class="estadisticas">
+  <div class="estadistica"><div class="n">{{ num_comercios }}</div><div class="l">comercios registrados</div></div>
+  <div class="estadistica"><div class="n">{{ num_ong }}</div><div class="l">entidades verificadas</div></div>
 </div>
 
-<div class="sec">ONG pendientes de aprobación</div>
+<p class="titulo-bloque">Entidades pendientes de aprobación</p>
 {% for ong in ong_pendientes %}
-  <div class="list-item">
-    <div class="grow">
+  <div class="fila">
+    <div class="crece">
       <b>{{ ong.nombre_entidad }}</b>
       <small>{{ ong.registro_oficial }} · {{ ong.email }}</small>
     </div>
-    <span class="badge b-wait">Pendiente</span>
+    <span class="etiqueta espera">Pendiente</span>
   </div>
 {% empty %}
-  <div class="empty">No hay ONG esperando revisión.</div>
+  <div class="vacio">No hay entidades esperando revisión.</div>
 {% endfor %}
 
-<a class="btn block" href="{% url 'admin:cuentas_usuario_changelist' %}?rol__exact=ong&estado__exact=pendiente">Revisar en el panel de administración</a>
-<p class="help" style="text-align:center">En el panel, marca las ONG y elige "Aprobar las cuentas seleccionadas".</p>
+<a class="btn btn-verde btn-bloque" href="{% url 'admin:cuentas_usuario_changelist' %}?rol__exact=ong&estado__exact=pendiente">Revisar en el panel de administración</a>
+<p class="ayuda centrado">En el panel, marca las entidades y elige "Aprobar las cuentas seleccionadas".</p>
 {% endblock %}

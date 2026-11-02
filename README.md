@@ -120,15 +120,18 @@ cuentas/               Usuarios: registro, inicio de sesión, roles y aprobació
   views.py             Qué página se muestra en cada dirección
   admin.py             Panel de administrador (aprobar / rechazar ONG)
   tests.py             Pruebas automáticas
-templates/             Páginas HTML
-static/css/            Estilos (colores, tipografía, diseño)
+templates/             Páginas HTML (base.html = cabecera y pie comunes; _logo.html = logo)
+static/css/            Estilos: foodbridge.css (común) y portada.css (solo la portada)
+static/js/planeta.js   Planeta 3D interactivo de la portada
+static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, licencia MIT)
 docs/capturas/         Capturas de pantalla
 ```
 
 ### Tecnologías
 - **Python + Django 5.2**: el framework web.
 - **SQLite**: base de datos en un solo archivo.
-- **HTML + CSS**: diseño adaptado al móvil.
+- **HTML + CSS**: diseño adaptado al móvil. Fuentes Inter y JetBrains Mono; paleta verde y blanco.
+- **Three.js**: dibuja el planeta 3D de la portada (se sirve desde `static/vendor/`).
 
 ### Uso de IA
 El código se ha desarrollado con ayuda de Claude (Anthropic) como herramienta de programación. El equipo ha definido la idea, las reglas de funcionamiento y el diseño, y se encarga de probar la app y gestionar el proyecto.

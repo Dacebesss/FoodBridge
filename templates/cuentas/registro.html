@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Registro · FoodBridge{% endblock %}
 {% block content %}
-<div class="hello">
+<div class="saludo">
   {% if rol == "comercio" %}
     <h1>Registro de comercio</h1>
-    <p>Podrás publicar excedente en cuanto termines.</p>
+    <p>Podrás publicar lotes en cuanto termines.</p>
   {% else %}
-    <h1>Registro de ONG</h1>
-    <p>Revisaremos vuestros datos antes de activar las reservas. Así evitamos que alguien se haga pasar por una ONG.</p>
+    <h1>Registro de entidad social</h1>
+    <p>Revisaremos vuestros datos antes de activar las reservas. Así nadie puede hacerse pasar por una ONG.</p>
   {% endif %}
 </div>
 
-<form method="post" class="card form" novalidate>
+<form method="post" class="tarjeta formulario" novalidate>
   {% csrf_token %}
   {% for field in form %}
-    <div class="field">
+    <div class="campo">
       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
       {{ field }}
       {{ field.errors }}
-      {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+      {% if field.help_text %}<div class="ayuda">{{ field.help_text|safe }}</div>{% endif %}
     </div>
   {% endfor %}
-  <button class="btn block" type="submit">Crear cuenta</button>
+  <button class="btn btn-verde btn-bloque" type="submit">Crear cuenta</button>
 </form>
 
-<p class="help" style="text-align:center"><a href="{% url 'cuentas:registro_elegir' %}">← Cambiar tipo de cuenta</a></p>
+<p class="ayuda centrado"><a href="{% url 'cuentas:registro_elegir' %}">← Cambiar tipo de cuenta</a></p>
 {% endblock %}

@@ -1,21 +1,152 @@
 {% extends "base.html" %}
-{% block main_class %}wide{% endblock %}
-{% block content %}
-<section class="hero">
-  <div>
-    <h1>La comida que sobra, <span>en la mesa de quien la necesita</span></h1>
-    <p class="lead">FoodBridge conecta los comercios de Villaviciosa de Odón con comedores sociales y ONG para que el excedente del día no acabe en la basura.</p>
-    <div class="ctas">
-      <a class="btn" href="{% url 'cuentas:registro_elegir' %}">Crear cuenta</a>
-      <a class="btn ghost" href="{% url 'cuentas:login' %}">Ya tengo cuenta</a>
-    </div>
+{% load static %}
+{# Portada: planeta 3D interactivo + secciones informativas. #}
+{# El dibujo del planeta y la interactividad están en static/js/planeta.js. #}
+{% block title %}FoodBridge · Que ningún alimento apto se tire{% endblock %}
+{% block body_class %}portada{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/portada.css' %}">{% endblock %}
+{% block menu %}
+  <nav class="menu" aria-label="Secciones">
+    <a href="#cifras">El problema</a>
+    <a href="#objetivo">Nuestro objetivo</a>
+    <a href="#como">Cómo funciona</a>
+  </nav>
+{% endblock %}
+{% block cuerpo %}
+<main>
+<section class="planeta" id="inicio" aria-label="Planeta interactivo del desperdicio alimentario">
+  <div class="planeta-lienzo" id="planeta-lienzo">
+    <canvas id="globo" tabindex="0" aria-label="Globo terráqueo en 3D. Arrástralo o usa las flechas para girarlo. Los puntos rojos son países y el verde es España; también puedes elegirlos con los botones del panel."></canvas>
   </div>
-  <div class="card">
-    <div class="steps">
-      <div class="step"><div class="num">1</div><div><b>El comercio publica</b><span>Foto, cantidad y fecha del producto que va a caducar.</span></div></div>
-      <div class="step"><div class="num">2</div><div><b>La ONG reserva</b><span>Nadie más puede reservarlo y recibe un PIN de 4 dígitos.</span></div></div>
-      <div class="step"><div class="num">3</div><div><b>Recogida con PIN</b><span>En la tienda se valida el PIN y la donación queda registrada.</span></div></div>
+  <div class="envoltura">
+    <div class="intro-planeta">
+      <p class="antetitulo">Desperdicio alimentario · 2022</p>
+      <h1><span class="cifra-heroe">1.052</span><span class="linea-heroe">millones de toneladas de comida tiradas en el mundo</span></h1>
+      <p class="pista-heroe">Gira el planeta y toca los puntos</p>
+    </div>
+    <div class="hueco-planeta" aria-hidden="true"></div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+  <div class="controles-planeta">
+    <button class="ctrl" id="c-menos" type="button" aria-label="Alejar">−</button>
+    <button class="ctrl" id="c-global" type="button">Vista global</button>
+    <button class="ctrl" id="c-mas" type="button" aria-label="Acercar">+</button>
+  </div>
+</section>
+
+<section class="seccion" id="cifras">
+  <div class="envoltura">
+    <div class="cabeza-seccion">
+      <p class="antetitulo" style="color: var(--coral)">El problema</p>
+      <h2>Se tira comida en casa, en restaurantes y en tiendas</h2>
+      <p>Datos de 2022 de Naciones Unidas (UNEP, Food Waste Index Report 2024).</p>
+    </div>
+    <div class="cifras">
+      <div class="cifra"><span class="valor" style="color: var(--coral)">132&nbsp;kg</span><p>de comida tirada por persona y año en el mundo.</p></div>
+      <div class="cifra"><span class="valor" style="color: #C27803">19&nbsp;%</span><p>de los alimentos disponibles para los consumidores acaba en la basura.</p></div>
+      <div class="cifra"><span class="valor" style="color: var(--turquesa)">8–10&nbsp;%</span><p>de las emisiones mundiales de gases de efecto invernadero.</p></div>
+    </div>
+    <div class="reparto">
+      <h3>¿Dónde se tira?</h3>
+      <p class="sub">Millones de toneladas en 2022. Toca cada parte.</p>
+      <div class="tira" role="group" aria-label="Reparto del desperdicio por sector">
+        <button class="tramo h" type="button" data-tramo="h" aria-pressed="true">Hogares · 631</button>
+        <button class="tramo r" type="button" data-tramo="r" aria-pressed="false">Restauración · 290</button>
+        <button class="tramo c" type="button" data-tramo="c" aria-pressed="false">Comercio · 131</button>
+      </div>
+      <p class="detalle-tramo" id="detalle-tramo"></p>
     </div>
   </div>
 </section>
+
+<section class="seccion suave" id="objetivo">
+  <div class="envoltura">
+    <div class="cabeza-seccion">
+      <p class="antetitulo" style="color: var(--verde)">Nuestro objetivo</p>
+      <h2>Del problema global a la calle de al lado</h2>
+      <p>Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
+    </div>
+    <div class="escala">
+      <div class="anillos" role="group" aria-label="Escalas">
+        <button class="anillo a1" type="button" data-escala="es" aria-pressed="false">España</button>
+        <button class="anillo a2" type="button" data-escala="md" aria-pressed="false">Comunidad de Madrid</button>
+        <button class="anillo a3" type="button" data-escala="vo" aria-pressed="true">Villaviciosa<br>de Odón</button>
+      </div>
+      <div class="ficha-escala" id="ficha-escala" aria-live="polite"></div>
+    </div>
+
+    <div class="ley">
+      <div class="cabeza-seccion" style="margin-bottom: 24px;">
+        <h2 style="font-size: clamp(22px, 2.4vw, 28px);">La Ley 1/2025 fija el orden</h2>
+        <p>La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
+      </div>
+      <ol class="jerarquia">
+        <li class="peldano"><span class="n">1</span><h3>Prevenir</h3><p>Que no sobre.</p></li>
+        <li class="peldano activo"><span class="n">2</span><h3>Donar</h3><p>A entidades sociales, para consumo humano.</p></li>
+        <li class="peldano"><span class="n">3</span><h3>Transformar</h3><p>En otros alimentos.</p></li>
+        <li class="peldano"><span class="n">4</span><h3>Animales</h3><p>Como alimento animal.</p></li>
+        <li class="peldano"><span class="n">5</span><h3>Compost o energía</h3><p>Último recurso.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" id="como">
+  <div class="envoltura">
+    <div class="cabeza-seccion">
+      <p class="antetitulo" style="color: var(--turquesa)">Cómo funciona</p>
+      <h2>Qué hace cada uno, paso a paso</h2>
+      <p>Elige tu papel y recorre los pasos.</p>
+    </div>
+    <div class="pestanas" role="tablist" aria-label="Papel">
+      <button class="pestana" role="tab" id="tab-comercio" aria-selected="true" aria-controls="flujo" data-rol="comercio">Comercio</button>
+      <button class="pestana" role="tab" id="tab-entidad" aria-selected="false" aria-controls="flujo" data-rol="entidad">Entidad social</button>
+      <button class="pestana" role="tab" id="tab-admin" aria-selected="false" aria-controls="flujo" data-rol="admin">Administración</button>
+    </div>
+    <div class="flujo" id="flujo" role="tabpanel" aria-labelledby="tab-comercio">
+      <ol class="pasos" id="pasos"></ol>
+      <div class="movil" aria-hidden="true"><div class="pantalla" id="pantalla"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion suave" id="equipo" style="padding-block: 72px;">
+  <div class="envoltura">
+    <p class="antetitulo" style="color: var(--gris)">Equipo · 1.º de Ingeniería Informática · Universidad Europea de Madrid</p>
+    <div class="equipo">
+      <span class="persona"><span class="avatar">DA</span><b>Diego Acebes</b><span class="rol">Jefe de proyecto</span></span>
+      <span class="persona"><span class="avatar" style="background: var(--coral)">XZ</span><b>Xinxin Zhu</b><span class="rol">Diseño</span></span>
+      <span class="persona"><span class="avatar" style="background: var(--turquesa)">DM</span><b>Daniel Madgwick</b><span class="rol">Pruebas</span></span>
+      <span class="persona"><span class="avatar" style="background: #C27803">DP</span><b>Daniel Panadero</b><span class="rol">Comercios</span></span>
+      <span class="persona"><span class="avatar" style="background: var(--verde)">JR</span><b>Juan Diego Ramírez</b><span class="rol">Entidades sociales</span></span>
+      <span class="persona"><span class="avatar" style="background: #7C5CC4">PC</span><b>Pablo Cabanillas</b><span class="rol">Legal</span></span>
+      <span class="persona"><span class="avatar" style="background: #0F766E">DF</span><b>Diego Fernández</b><span class="rol">Negocio</span></span>
+    </div>
+    <details style="margin-top: 40px;">
+      <summary style="cursor: pointer; font-weight: 600; font-size: 14px;">Fuentes de los datos</summary>
+      <ol class="fuentes" style="margin-top: 12px;">
+        <li>UNEP (2024). <a href="https://wedocs.unep.org/20.500.11822/45230" target="_blank" rel="noopener">Food Waste Index Report 2024</a>: datos mundiales de 2022, Estados Unidos, India y Japón.</li>
+        <li>Eurostat: desperdicio alimentario en la UE, <a href="https://www.eunews.it/en/2026/09/29/eurostat-eu-food-waste-rose-to-129-kg-per-person-in-2024/" target="_blank" rel="noopener">datos de 2024</a>.</li>
+        <li>Ministerio de Agricultura, Pesca y Alimentación: <a href="https://www.lamoncloa.gob.es/serviciosdeprensa/notasprensa/agricultura/Paginas/2025/010825-planas-reduccion-desperdicio-alimentario.aspx" target="_blank" rel="noopener">desperdicio alimentario en España en 2024</a>.</li>
+        <li><a href="https://leap.unep.org/en/countries/es/national-legislation/ley-12025-de-1-de-abril-de-prevencion-de-las-perdidas-y-el" target="_blank" rel="noopener">Ley 1/2025, de 1 de abril, de prevención de las pérdidas y el desperdicio alimentario</a>.</li>
+      </ol>
+    </details>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="envoltura">
+    <h2>¿Tienes un comercio o una entidad social en Villaviciosa de Odón?</h2>
+    <div class="botones">
+      <a class="btn btn-menta" href="{% url 'cuentas:registro' 'comercio' %}">Registrar mi comercio</a>
+      <a class="btn btn-linea" href="{% url 'cuentas:registro' 'ong' %}">Soy una entidad social</a>
+    </div>
+  </div>
+</section>
+
+</main>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/three.min.js' %}"></script>
+<script src="{% static 'js/planeta.js' %}"></script>
 {% endblock %}

@@ -2,39 +2,54 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1C7549">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#03110A">
+  <meta name="description" content="FoodBridge conecta el excedente de los comercios de Villaviciosa de Odón con las entidades sociales que lo necesitan.">
   <title>{% block title %}FoodBridge{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap">
   <link rel="stylesheet" href="{% static 'css/foodbridge.css' %}">
+  {% block estilos %}{% endblock %}
 </head>
-<body>
-  <header class="topbar">
-    <div class="topbar-in">
-      <a class="brand" href="{% url 'inicio' %}">{% include "_logo.html" %}<span class="brand-name">Food<span>Bridge</span></span></a>
-      <nav class="nav">
-        <span class="loc">📍 {% if user.is_authenticated %}{{ user.municipio }}{% else %}Villaviciosa de Odón{% endif %}</span>
+<body class="{% block body_class %}app{% endblock %}">
+  <header class="cabecera">
+    <div class="envoltura">
+      <a class="marca" href="{% url 'inicio' %}" aria-label="FoodBridge, inicio">{% include "_logo.html" %}<span>Food<b>Bridge</b></span></a>
+      {% block menu %}
+        <span class="ubicacion">{% if user.is_authenticated %}{{ user.municipio }}{% else %}Villaviciosa de Odón{% endif %}</span>
+      {% endblock %}
+      <div class="botones">
         {% if user.is_authenticated %}
+          <a class="btn btn-linea" href="{% url 'cuentas:panel' %}">Mi panel</a>
           <form method="post" action="{% url 'cuentas:logout' %}">
             {% csrf_token %}
-            <button class="btn ghost sm" type="submit">Salir</button>
+            <button class="btn btn-blanco" type="submit">Salir</button>
           </form>
         {% else %}
-          <a class="btn ghost sm" href="{% url 'cuentas:login' %}">Entrar</a>
+          <a class="btn btn-linea" href="{% url 'cuentas:login' %}">Acceder</a>
+          <a class="btn btn-blanco" href="{% url 'cuentas:registro_elegir' %}">Registrarse</a>
         {% endif %}
-      </nav>
+      </div>
     </div>
   </header>
 
-  <main class="main {% block main_class %}{% endblock %}">
+  {% block cuerpo %}
+  <main class="principal">
     {% for m in messages %}
-      <div class="alert {{ m.tags }}" role="status">{{ m }}</div>
+      <div class="aviso {{ m.tags }}" role="status">{{ m }}</div>
     {% endfor %}
     {% block content %}{% endblock %}
   </main>
+  {% endblock %}
 
-  <footer class="footer">FoodBridge · Proyecto de 1º de Ingeniería Informática · UEM</footer>
+  <footer class="pie">
+    <div class="envoltura">
+      <span>© 2026 FoodBridge · Proyecto académico · 1.º de Ingeniería Informática · UEM</span>
+      <nav aria-label="Información legal"><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Contacto</a></nav>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
