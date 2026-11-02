@@ -27,7 +27,10 @@
     <div class="visor" id="visor" hidden>
       <video id="video" playsinline muted></video>
       <div class="marco" aria-hidden="true"></div>
-      <button class="btn btn-blanco btn-peque visor-cerrar" type="button" id="parar">Cerrar cámara</button>
+      <div class="visor-botones">
+        <button class="btn btn-linea btn-peque" type="button" id="linterna" aria-pressed="false" hidden>Linterna</button>
+        <button class="btn btn-blanco btn-peque" type="button" id="parar">Cerrar cámara</button>
+      </div>
     </div>
     <div class="codigo-manual">
       <label class="ayuda" for="codigo-manual">¿Sin cámara? Escribe los números que hay debajo de las barras:</label>

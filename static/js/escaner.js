@@ -6,6 +6,7 @@
      cuadra y si se ha leído dos veces seguidas igual.
      - Si el navegador sabe leer códigos por sí solo (Chrome en Android), usa eso.
      - Si no (iPhone, Firefox…), usa la librería ZXing, guardada en static/vendor/.
+     - Pide la cámara en alta resolución, con enfoque continuo y linterna si el móvil la tiene.
   2. Busca el código en Open Food Facts, una base de datos libre de alimentos.
      La búsqueda la hace el propio móvil, no nuestro servidor.
   3. Rellena el formulario: nombre, marca, categoría, foto, alérgenos y kilos.
@@ -39,8 +40,9 @@
   }
 
   /* ---------- Cámara ---------- */
-  var flujo = null, lectorZXing = null, buscando = false;
-  var ultimaLectura = null, vecesSeguidas = 0;
+  var flujo = null, lectorZXing = null, buscando = false, temporizadorAyuda = null;
+  var ultimaLectura = null, vecesSeguidas = 0, linternaEncendida = false;
+  var botonLinterna = $("linterna");
 
   // Cada vez que la cámara "cree" ver un código, pasa por aquí.
   function candidato(codigo) {
@@ -54,6 +56,28 @@
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext;
   }
 
+  // Pedimos la cámara trasera en alta resolución: con poca resolución las barras finas se emborronan.
+  async function abrirCamara() {
+    var deseado = { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } };
+    try {
+      flujo = await navigator.mediaDevices.getUserMedia({ video: deseado, audio: false });
+    } catch (e) {
+      if (e && e.name === "NotAllowedError") throw e;
+      // Algunos móviles no aceptan la alta resolución: probamos con lo básico.
+      flujo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    }
+    var pista = flujo.getVideoTracks()[0];
+    var puede = (pista && pista.getCapabilities) ? pista.getCapabilities() : {};
+    // Enfoque automático continuo (Android): sin él, de cerca el código sale borroso.
+    if (puede.focusMode && puede.focusMode.indexOf("continuous") !== -1) {
+      try { await pista.applyConstraints({ advanced: [{ focusMode: "continuous" }] }); } catch (e) { /* no pasa nada */ }
+    }
+    // Linterna: solo se enseña el botón si el móvil la permite.
+    botonLinterna.hidden = !puede.torch;
+    video.srcObject = flujo;
+    await video.play();
+  }
+
   async function empezar() {
     if (!camaraDisponible()) {
       avisar("Este navegador no deja usar la cámara aquí. Escribe los números del código debajo.", "error");
@@ -62,15 +86,22 @@
     }
     visor.hidden = false;
     botonEscanear.hidden = true;
-    ultimaLectura = null; vecesSeguidas = 0;
-    avisar("Apunta al código de barras y mantén el móvil quieto…");
+    ultimaLectura = null; vecesSeguidas = 0; linternaEncendida = false;
+    avisar("Pon el código en horizontal dentro del recuadro y mantén el móvil quieto.");
     try {
+      await abrirCamara();
+      var nativo = false;
       if ("BarcodeDetector" in window) {
         var formatos = await window.BarcodeDetector.getSupportedFormats();
-        if (formatos.indexOf("ean_13") !== -1) return await conDetectorNativo();
+        nativo = formatos.indexOf("ean_13") !== -1;
       }
-      if (window.ZXing) return conZXing();
-      throw new Error("sin lector");
+      if (nativo) conDetectorNativo();
+      else if (window.ZXing) conZXing();
+      else throw new Error("sin lector");
+      // Si en 10 segundos no lo ha leído, damos pistas.
+      temporizadorAyuda = setTimeout(function () {
+        if (buscando) avisar("¿No lo lee? Aleja el móvil un poco (unos 15–20 cm), busca más luz o evita reflejos. También puedes escribir los números debajo.", "aviso");
+      }, 10000);
     } catch (e) {
       parar();
       if (e && e.name === "NotAllowedError") avisar("No has dado permiso para usar la cámara. Puedes escribir el código a mano.", "error");
@@ -78,10 +109,7 @@
     }
   }
 
-  async function conDetectorNativo() {
-    flujo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
-    video.srcObject = flujo;
-    await video.play();
+  function conDetectorNativo() {
     var detector = new window.BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a"] });
     buscando = true;
     (async function mirar() {
@@ -91,7 +119,7 @@
         codigos.forEach(function (c) { candidato(c.rawValue); });
         if (!buscando) return;
       } catch (e) { /* fotograma sin datos: seguimos */ }
-      setTimeout(mirar, 150);
+      setTimeout(mirar, 100);
     })();
   }
 
@@ -99,20 +127,35 @@
     var Z = window.ZXing;
     var pistas = new Map();
     pistas.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A]);
-    lectorZXing = new Z.BrowserMultiFormatReader(pistas, 200);
+    // Ojo: NO activar TRY_HARDER. Lo probamos y en esta versión de ZXing impide leer los EAN.
+    lectorZXing = new Z.BrowserMultiFormatReader(pistas, 100);
     buscando = true;
-    return lectorZXing.decodeFromConstraints({ video: { facingMode: { ideal: "environment" } }, audio: false }, video, function (resultado) {
+    lectorZXing.decodeFromStream(flujo, video, function (resultado) {
       if (resultado && buscando) candidato(resultado.getText());
     });
   }
 
+  async function cambiarLinterna() {
+    if (!flujo) return;
+    linternaEncendida = !linternaEncendida;
+    try {
+      await flujo.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: linternaEncendida }] });
+      botonLinterna.setAttribute("aria-pressed", String(linternaEncendida));
+      botonLinterna.textContent = linternaEncendida ? "Apagar linterna" : "Linterna";
+    } catch (e) { botonLinterna.hidden = true; }
+  }
+
   function parar() {
     buscando = false;
+    clearTimeout(temporizadorAyuda);
     if (lectorZXing) { lectorZXing.reset(); lectorZXing = null; }
     if (flujo) { flujo.getTracks().forEach(function (p) { p.stop(); }); flujo = null; }
     video.srcObject = null;
     visor.hidden = true;
     botonEscanear.hidden = false;
+    botonLinterna.hidden = true;
+    botonLinterna.textContent = "Linterna";
+    botonLinterna.setAttribute("aria-pressed", "false");
   }
 
   function leido(codigo) {
@@ -226,6 +269,7 @@
   /* ---------- Eventos ---------- */
   botonEscanear.addEventListener("click", empezar);
   botonParar.addEventListener("click", function () { parar(); avisar(""); });
+  botonLinterna.addEventListener("click", cambiarLinterna);
   botonBuscar.addEventListener("click", function () { buscar(codigoManual.value); });
   codigoManual.addEventListener("keydown", function (e) {
     // Enter aquí busca el producto, no envía el formulario.
