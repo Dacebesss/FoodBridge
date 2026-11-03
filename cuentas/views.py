@@ -87,7 +87,7 @@ def panel(request):
         return render(request, "cuentas/panel_admin.html", contexto)
 
     if usuario.es_comercio:
-        mios = Lote.objects.filter(comercio=usuario).select_related("entidad").prefetch_related("productos")
+        mios = Lote.objects.filter(comercio=usuario).select_related("entidad")
         contexto = {
             "por_recoger": mios.filter(estado=Lote.Estado.RESERVADO),
             "publicados": mios.filter(estado=Lote.Estado.DISPONIBLE),
@@ -100,7 +100,7 @@ def panel(request):
 
     contexto = {}
     if usuario.puede_reservar:
-        mias = Lote.objects.filter(entidad=usuario).select_related("comercio").prefetch_related("productos")
+        mias = Lote.objects.filter(entidad=usuario).select_related("comercio")
         contexto = {
             "disponibles": operaciones.lotes_visibles_para(usuario),
             "reservas": mias.filter(estado=Lote.Estado.RESERVADO),

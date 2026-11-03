@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from cuentas.models import Usuario
 from lotes import operaciones
-from lotes.models import Lote, ProductoLote
+from lotes.models import Lote
 
 CONTRASENA = "foodbridge2026"
 
@@ -34,35 +34,19 @@ CUENTAS = [
 ]
 
 
-C = Lote.Categoria
-F = Lote.TipoFecha
-# (nombre del lote, tipo de fecha, días hasta la fecha, comercio, [(producto, categoría, unidades, kg)])
+# producto, marca, categoría, unidades, kg, tipo de fecha, días hasta la fecha, comercio
 LOTES = [
-    ("", F.CADUCIDAD, 1, "plaza@foodbridge.es",
-     [("Yogures naturales (pack de 4)", C.LACTEOS, 6, "3.00")]),
-    ("", F.CADUCIDAD, 0, "plaza@foodbridge.es",
-     [("Ensalada mixta preparada", C.PLATOS, 8, "2.00")]),
-    ("Caja de excedentes del día", F.PREFERENTE, 2, "plaza@foodbridge.es",
-     [("Galletas María", C.DESPENSA, 4, "3.20"), ("Leche semidesnatada 1 L", C.LACTEOS, 6, "6.00"),
-      ("Tomate frito", C.DESPENSA, 3, "1.20"), ("Plátanos", C.FRUTA_VERDURA, 1, "1.50")]),
-    ("", F.FRESCO, 0, "espiga@foodbridge.es",
-     [("Barras de pan del día", C.PAN_BOLLERIA, 15, "3.75")]),
-    ("", F.PREFERENTE, 2, "espiga@foodbridge.es",
-     [("Magdalenas caseras", C.PAN_BOLLERIA, 24, "1.20")]),
+    ("Yogures naturales (pack de 4)", "", Lote.Categoria.LACTEOS, 6, "3.00",
+     Lote.TipoFecha.CADUCIDAD, 1, "plaza@foodbridge.es"),
+    ("Ensalada mixta preparada", "", Lote.Categoria.PLATOS, 8, "2.00",
+     Lote.TipoFecha.CADUCIDAD, 0, "plaza@foodbridge.es"),
+    ("Galletas María", "", Lote.Categoria.DESPENSA, 12, "9.60",
+     Lote.TipoFecha.PREFERENTE, -3, "plaza@foodbridge.es"),
+    ("Barras de pan del día", "", Lote.Categoria.PAN_BOLLERIA, 15, "3.75",
+     Lote.TipoFecha.PREFERENTE, 0, "espiga@foodbridge.es"),
+    ("Magdalenas caseras", "", Lote.Categoria.PAN_BOLLERIA, 24, "1.20",
+     Lote.TipoFecha.PREFERENTE, 2, "espiga@foodbridge.es"),
 ]
-
-
-def crear_lote(comercio, nombre, tipo, fecha, inicio, fin, productos, **extra):
-    """Crea un lote con sus productos, igual que lo haría la página de publicar."""
-    lista = [ProductoLote(nombre=n, categoria=c, unidades=u, kg=Decimal(kg)) for n, c, u, kg in productos]
-    lote = Lote(comercio=comercio, nombre=nombre, tipo_fecha=tipo, fecha=fecha,
-                recogida_inicio=inicio, recogida_fin=fin, **extra)
-    lote.resumir(lista)
-    lote.save()
-    for producto in lista:
-        producto.lote = lote
-    ProductoLote.objects.bulk_create(lista)
-    return lote
 
 
 def franja_de_hoy():
@@ -112,21 +96,26 @@ class Command(BaseCommand):
             return
 
         dia, inicio, fin = franja_de_hoy()
-        hoy = timezone.localdate()
         creados = []
-        for nombre, tipo, dias, email, productos in LOTES:
-            fecha = hoy + datetime.timedelta(days=dias)
-            if tipo != F.PREFERENTE:
-                fecha = max(dia, fecha)  # que se pueda recoger antes de la fecha
-            creados.append(crear_lote(Usuario.objects.get(email=email), nombre, tipo, fecha, inicio, fin, productos))
+        for nombre, marca, categoria, unidades, kg, tipo, dias, email in LOTES:
+            creados.append(Lote.objects.create(
+                comercio=Usuario.objects.get(email=email),
+                nombre=nombre, marca=marca, categoria=categoria,
+                unidades=unidades, kg=Decimal(kg), tipo_fecha=tipo,
+                fecha=max(dia, timezone.localdate() + datetime.timedelta(days=dias))
+                if tipo == Lote.TipoFecha.CADUCIDAD else timezone.localdate() + datetime.timedelta(days=dias),
+                recogida_inicio=inicio, recogida_fin=fin,
+            ))
 
         # Una reserva ya hecha y una entrega de ayer, para enseñar todo el recorrido en la demo.
         comedor = Usuario.objects.get(email="sanjose@foodbridge.es")
         operaciones.reservar(creados[0].pk, comedor)
         ayer = timezone.now() - datetime.timedelta(days=1)
-        crear_lote(
-            Usuario.objects.get(email="espiga@foodbridge.es"), "", F.FRESCO, ayer.date(),
-            ayer, ayer + datetime.timedelta(hours=2), [("Croissants", C.PAN_BOLLERIA, 20, "1.40")],
+        Lote.objects.create(
+            comercio=Usuario.objects.get(email="espiga@foodbridge.es"),
+            nombre="Croissants", categoria=Lote.Categoria.PAN_BOLLERIA, unidades=20, kg=Decimal("1.40"),
+            tipo_fecha=Lote.TipoFecha.PREFERENTE, fecha=timezone.localdate(),
+            recogida_inicio=ayer, recogida_fin=ayer + datetime.timedelta(hours=2),
             estado=Lote.Estado.ENTREGADO, entidad=comedor, entregado_en=ayer + datetime.timedelta(hours=1),
         )
         self.stdout.write(self.style.SUCCESS(f"  creados   {len(creados) + 1} lotes (1 reservado y 1 entregado)"))

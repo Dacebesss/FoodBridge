@@ -33,7 +33,6 @@ def lotes_visibles_para(entidad):
         # Pasada la caducidad no se dona; el consumo preferente sí.
         .filter(Q(tipo_fecha=Lote.TipoFecha.PREFERENTE) | Q(fecha__gte=hoy))
         .select_related("comercio")
-        .prefetch_related("productos")
     )
 
 

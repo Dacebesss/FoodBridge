@@ -3,7 +3,7 @@
   <div class="lote-cuerpo">
     <div class="lote-foto">
       {% if lote.imagen %}
-        <img src="{{ lote.imagen }}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+        <img src="{{ lote.imagen }}" alt="" loading="lazy" referrerpolicy="no-referrer">
       {% else %}
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.4 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       {% endif %}
@@ -14,8 +14,6 @@
       <div class="lote-etiquetas">
         {% if lote.tipo_fecha == "caducidad" %}
           <span class="etiqueta espera">{% if lote.dias_restantes == 0 %}Caduca hoy{% else %}Caduca el {{ lote.fecha|date:"j M" }}{% endif %}</span>
-        {% elif lote.tipo_fecha == "fresco" %}
-          <span class="etiqueta ok">Fresco del día</span>
         {% else %}
           <span class="etiqueta preferente">Consumo pref. {{ lote.fecha|date:"j M" }}</span>
         {% endif %}
@@ -29,9 +27,6 @@
     {% if modo == "disponible" or modo == "reserva" %}
       <div><dt>Dónde</dt><dd>{{ lote.comercio.nombre_entidad }} · {{ lote.comercio.direccion }}</dd></div>
     {% endif %}
-    {% with lista=lote.productos.all %}{% if lista|length > 1 %}
-      <div><dt>Contiene</dt><dd><ul class="contenido">{% for p in lista %}<li><span class="num">{{ p.unidades }}</span> × {{ p.nombre }}</li>{% endfor %}</ul></dd></div>
-    {% endif %}{% endwith %}
     {% if lote.alergenos %}<div><dt>Alérgenos</dt><dd>{{ lote.alergenos }}</dd></div>{% endif %}
     {% if lote.observaciones %}<div><dt>Notas</dt><dd>{{ lote.observaciones }}</dd></div>{% endif %}
     {% if modo == "por_recoger" %}<div><dt>Reservado por</dt><dd>{{ lote.entidad.nombre_entidad }}</dd></div>{% endif %}

@@ -10,9 +10,9 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
   4. Cancelar una reserva.
   5. Reglas de fechas (no deja publicar algo caducado).
   6. Panel de administrador y alta de una ONG nueva (aprobarla).
-- [ ] **Decidir qué hacer con las «cajas»** (varios productos por lote, escáner continuo). Está hecho y subido
-      a GitHub (commit `2808c02`), pero Diego pidió dejarlo de momento. Opciones: dejarlo en `main` o
-      guardarlo en una rama `cajas`. ⚠️ **Hasta decidirlo, NO hacer `git pull` en PythonAnywhere.**
+- [ ] **Cajas** (varios productos por lote, escáner continuo): hechas pero aparcadas. Guardadas en la rama
+      **`cajas`** de GitHub (commit `2808c02`) y quitadas de `main`. Para recuperarlas: `git revert` del commit
+      que las quitó, o fusionar la rama `cajas`.
 - [ ] Probar el escáner en un **Android** (en iPhone ya funciona).
 
 ## Después

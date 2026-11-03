@@ -110,20 +110,17 @@ El panel de administración de Django está en **http://127.0.0.1:8000/admin** (
 
 ## Cómo funciona un lote
 
-Un **lote** es lo que un comercio dona de una vez: un solo producto o una caja con varios.
-
-1. **El comercio publica.** Pulsa «Escanear productos» y va pasando los productos por la cámara uno detrás de otro (*pip, pip, pip*). Cada uno se añade a una lista; si pasa otra vez el mismo, suma una unidad. La web busca cada producto en [Open Food Facts](https://es.openfoodfacts.org) (base de datos libre, licencia ODbL) y pone el nombre, la marca, la categoría, la foto, los alérgenos y el peso. Lo que no tiene código (pan, fruta, verdura…) se añade con botones rápidos. Al final pone **una sola fecha** para todo el lote y la **franja de recogida**, que ya sale rellena con la última que usó la tienda.
+1. **El comercio publica.** Puede escanear el código de barras con la cámara del móvil: la web busca el producto en [Open Food Facts](https://es.openfoodfacts.org) (base de datos libre, licencia ODbL) y rellena el nombre, la marca, la categoría, la foto, los alérgenos y los kilos. El comercio solo añade la fecha del envase y la franja de recogida. Si el producto no tiene código o no está en la base de datos, se rellena a mano.
 2. **Una entidad verificada del mismo municipio reserva.** El primero que llega gana: la base de datos solo deja reservar un lote que siga disponible. La entidad recibe un **PIN de 4 cifras**.
 3. **En la tienda, el comercio escribe el PIN** y la entrega queda registrada (fecha, kilos y entidad). Tras 5 PIN incorrectos, el PIN cambia.
 
 Reglas:
-- Tres tipos de fecha: **consumo preferente** (lo más habitual; se puede donar aunque haya pasado), **caducidad** (pasada la fecha no se puede donar) y **fresco sin fecha** (fruta, verdura, pan del día: cuenta como fecha el día de recogida).
-- Si un lote tiene varios productos, se pone la fecha **del que vence antes**.
+- Pasada la **fecha de caducidad** no se puede donar. Pasado el **consumo preferente**, sí.
 - La recogida tiene que ser como tarde el día que caduca.
 - Si la entidad **cancela**, el lote vuelve a publicarse solo si le queda al menos 1 día; si no, se retira.
-- Si termina la **franja de recogida** sin entrega, la reserva se libera y el lote se retira. El comercio puede pulsar «Publicar de nuevo», que copia todos los productos.
+- Si termina la **franja de recogida** sin entrega, la reserva se libera y el lote se retira. El comercio puede pulsar «Publicar de nuevo».
 
-El escáner necesita una conexión segura (HTTPS) para usar la cámara. En el ordenador (`127.0.0.1`) y en PythonAnywhere ya la hay. Funciona en Android y en iPhone (probado en iPhone): si el navegador no sabe leer códigos por sí solo, usa la librería ZXing. Para evitar errores, solo acepta un código si su último número (dígito de control) cuadra y si lo ha leído dos veces seguidas igual.
+El escáner necesita una conexión segura (HTTPS) para usar la cámara. En el ordenador (`127.0.0.1`) y en PythonAnywhere ya la hay. Funciona en Android y en iPhone: si el navegador no sabe leer códigos por sí solo, usa la librería ZXing.
 
 ---
 
@@ -146,7 +143,7 @@ cuentas/               Usuarios: registro, inicio de sesión, roles y aprobació
   admin.py             Panel de administrador (aprobar / rechazar ONG)
   tests.py             Pruebas automáticas
 lotes/                 Lotes donados
-  models.py            Qué datos guardamos de cada lote y de cada producto de dentro
+  models.py            Qué datos guardamos de cada lote
   operaciones.py       Las reglas: reservar, cancelar, entregar con PIN, cerrar franjas
   forms.py             Formulario de publicar (comprueba fechas y franjas)
   views.py             Páginas y botones de cada acción
@@ -154,7 +151,7 @@ lotes/                 Lotes donados
 templates/             Páginas HTML (base.html = cabecera y pie comunes; _logo.html = logo)
 static/css/            Estilos: foodbridge.css (común) y portada.css (solo la portada)
 static/js/planeta.js   Planeta 3D interactivo de la portada
-static/js/escaner.js   Escáner continuo, lista de productos y búsqueda en Open Food Facts
+static/js/escaner.js   Escáner de códigos de barras y búsqueda en Open Food Facts
 static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, MIT; ZXing 0.21.3, Apache 2.0)
 docs/capturas/         Capturas de pantalla
 ```

@@ -10,13 +10,11 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from . import operaciones
-from .forms import LoteForm, productos_a_json
+from .forms import LoteForm
 from .models import Lote
 
 
@@ -40,40 +38,27 @@ def solo_entidades(vista):
     return envoltura
 
 
-def franja_habitual(comercio):
-    """La franja (desde, hasta) del último lote de esta tienda, para no tener que escribirla cada vez."""
-    ultimo = Lote.objects.filter(comercio=comercio).order_by("-creado_en").first()
-    if not ultimo:
-        return None
-    return (timezone.localtime(ultimo.recogida_inicio).strftime("%H:%M"),
-            timezone.localtime(ultimo.recogida_fin).strftime("%H:%M"))
-
-
 @solo_comercios
 def publicar(request):
     if request.method == "POST":
         form = LoteForm(request.POST, request.FILES)
         if form.is_valid():
-            with transaction.atomic():  # o se guarda todo (lote + productos) o nada
-                lote = form.save(commit=False)
-                lote.comercio = request.user
-                lote.save()
-                form.guardar_productos(lote)
+            lote = form.save(commit=False)
+            lote.comercio = request.user
+            lote.save()
             messages.success(request, f"«{lote.nombre}» publicado. Las entidades de tu zona ya lo ven.")
             return redirect("cuentas:panel")
     else:
         inicial = {}
-        # "Publicar de nuevo": copia los productos de un lote anterior del mismo comercio.
+        # "Publicar de nuevo": copia los datos de un lote anterior del mismo comercio.
         copiar = request.GET.get("copiar")
         if copiar and copiar.isdigit():
             origen = Lote.objects.filter(pk=copiar, comercio=request.user).first()
             if origen:
-                inicial = {
-                    "productos": productos_a_json(origen),
-                    "tipo_fecha": origen.tipo_fecha,
-                    "observaciones": origen.observaciones,
-                }
-        form = LoteForm(initial=inicial, franja_habitual=franja_habitual(request.user))
+                for campo in ["codigo_barras", "nombre", "marca", "categoria", "foto_url",
+                              "unidades", "kg", "tipo_fecha", "fecha", "alergenos", "observaciones"]:
+                    inicial[campo] = getattr(origen, campo)
+        form = LoteForm(initial=inicial)
     return render(request, "lotes/publicar.html", {"form": form})
 
 
