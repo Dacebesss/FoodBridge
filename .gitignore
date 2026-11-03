@@ -15,3 +15,6 @@ media/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Configuración de Obsidian (cada uno tiene la suya)
+.obsidian/
