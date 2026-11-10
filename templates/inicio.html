@@ -17,6 +17,13 @@
     <div class="planeta-lienzo" id="planeta-lienzo">
       <canvas id="globo" tabindex="0" aria-label="Globo terráqueo en 3D. Arrástralo o usa las flechas para girarlo. Los puntos rojos son datos de desperdicio por país; el verde es Villaviciosa de Odón."></canvas>
     </div>
+    <aside class="ficha-pais" id="ficha-pais" aria-live="polite" hidden></aside>
+    <div class="paises-accesibles" role="group" aria-label="Datos por país">
+      <button type="button" data-pais="eu">Unión Europea</button>
+      <button type="button" data-pais="us">Estados Unidos</button>
+      <button type="button" data-pais="in">India</button>
+      <button type="button" data-pais="jp">Japón</button>
+    </div>
     <div class="marca-tierra">
       <div class="marca-grande">{% include "_logo.html" with size=56 %}<span>Food<b>Bridge</b></span></div>
       <p>La comida que sobra, para quien la necesita</p>
@@ -35,6 +42,17 @@
       <button class="furgo-etq como" type="button" data-capitulo="como" aria-controls="cap-como"><span class="punto" aria-hidden="true"></span>Cómo funciona</button>
     </div>
     <button class="volver-tierra" id="volver-tierra" type="button">← Volver a la Tierra</button>
+
+    {# FoodBridge en directo (se abre con …/#directo): el público dona desde su móvil y las furgonetas salen aquí #}
+    <aside class="panel-directo" id="panel-directo" hidden>
+      <span class="en-vivo"><i aria-hidden="true"></i>En directo</span>
+      <div class="pd-qr" id="pd-qr" role="img" aria-label="Código QR para donar desde el móvil"></div>
+      <p class="pd-llamada">Escanea y dona desde tu móvil</p>
+      <p class="pd-url num" id="pd-url"></p>
+      <div class="pd-contador" aria-live="polite"><b class="num" id="pd-kg">0</b><span>kg rescatados en esta sala</span></div>
+      <p class="pd-lotes"><b class="num" id="pd-lotes">0</b> lotes entregados</p>
+    </aside>
+    <p class="aviso-hito" id="aviso-hito" role="status" hidden></p>
     <p class="pista-puente" id="pista-puente">Toca una furgoneta para ver qué lleva</p>
 
     <section class="panel-historia capitulo-panel" id="cap-problema" aria-labelledby="titulo-problema" hidden>
@@ -145,5 +163,6 @@
 {% block scripts %}
 <script src="{% static 'vendor/three.min.js' %}"></script>
 <script src="{% static 'js/planeta.js' %}"></script>
+<script src="{% static 'vendor/qrcode.js' %}"></script>
 <script src="{% static 'js/puente.js' %}"></script>
 {% endblock %}

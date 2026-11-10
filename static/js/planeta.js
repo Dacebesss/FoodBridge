@@ -40,7 +40,64 @@
     setTimeout(function () { globo.acercar("vo"); }, 2500);
     setTimeout(cruzar, 3900);
   }
-  function elegir(id) { if (id === "es" || id === "md" || id === "vo") viajar(); }
+  function elegir(id) {
+    if (id === "es" || id === "md" || id === "vo") { ocultarPais(); viajar(); }
+    else if (id) mostrarPais(id, false);
+  }
+
+  /* ===== Fichas de los países: la cifra, una comparación y la fuente ===== */
+  var fichaPais = document.getElementById("ficha-pais"), paisActivo = null;
+  function barras(filas, max, color) {
+    return '<div class="fp-barras">' + filas.map(function (f) {
+      return '<div class="fp-fila"><span>' + f[0] + '</span><b class="num">' + f[1] + '</b><i style="--ancho:' + Math.min(100, f[2] / max * 100).toFixed(1) + '%;--color:' + (f[3] || color) + '"></i></div>';
+    }).join("") + '</div>';
+  }
+  function fichaHTML(p) {
+    var h = '<p class="fp-pais"><span class="punto rojo" aria-hidden="true"></span>' + p.nombre + '</p>';
+    if (p.reduccion) {
+      h += '<p class="fp-cifra verde num">−' + p.reduccion + '&nbsp;%</p><p class="fp-pie">' + p.pie + '</p>';
+      h += barras([["En los hogares", "−29 %", 29, "var(--menta)"], ["En restauración", "−35 %", 35, "var(--menta)"]], 40);
+      h += '<p class="fp-texto">Un ejemplo de que el desperdicio se puede reducir.</p>';
+    } else {
+      h += '<p class="fp-cifra num">' + p.kg + '<small> kg</small></p><p class="fp-pie">' + p.pie + '</p>';
+      var filas = p.hogar ? [["En los hogares", p.hogar + " kg", p.hogar], ["En toda la cadena", p.kg + " kg", p.kg]] : [[p.nombre, p.kg + " kg", p.kg]];
+      filas.push(["Media mundial (hogares)", MEDIA_HOGAR + " kg", MEDIA_HOGAR, "rgba(255,255,255,0.45)"]);
+      h += barras(filas, 140, "var(--coral)");
+      h += '<p class="fp-texto">' + p.texto + '</p>';
+    }
+    return h + '<p class="fp-fuente">Fuente: ' + p.fuente + '</p>';
+  }
+  function mostrarPais(id, automatico) {
+    var p = PAISES.filter(function (x) { return x.id === id; })[0];
+    if (!p || !fichaPais) return;
+    paisActivo = id; seleccion = id;
+    fichaPais.innerHTML = fichaHTML(p);
+    fichaPais.hidden = false;
+    fichaPais.classList.remove("entra"); void fichaPais.offsetWidth; fichaPais.classList.add("entra");
+    if (globo) globo.girarA(id);
+    if (!automatico) ultimaInteraccion = Date.now();
+  }
+  function ocultarPais() {
+    if (!paisActivo) return;
+    paisActivo = null; if (seleccion !== "vo") seleccion = null;
+    fichaPais.hidden = true;
+    if (globo) globo.soltar();
+  }
+  // Modo escaparate: si nadie toca nada, el planeta va enseñando los países solo.
+  var ORDEN = ["eu", "us", "in", "jp"], vuelta = 0, ultimaInteraccion = Date.now();
+  if (!reducido) setInterval(function () {
+    var tierra = document.getElementById("inicio");
+    if (viajando || document.hidden || (tierra && tierra.classList.contains("oculta"))) return;
+    if (Date.now() - ultimaInteraccion < 14000) return;
+    mostrarPais(ORDEN[vuelta++ % ORDEN.length], true);
+  }, 6500);
+  ["pointerdown", "keydown", "wheel"].forEach(function (ev) {
+    document.addEventListener(ev, function () { ultimaInteraccion = Date.now(); }, { passive: true });
+  });
+  // Para teclado y lectores de pantalla: botones de los países (se ven al recibir el foco).
+  document.querySelectorAll(".paises-accesibles button").forEach(function (b) {
+    b.addEventListener("click", function () { mostrarPais(b.dataset.pais, false); });
+  });
   var botonVilla = document.getElementById("ir-villa");
   if (botonVilla) botonVilla.addEventListener("click", viajar);
   document.addEventListener("foodbridge:cruzar", function () { if (globo) globo.pausar(true); });
@@ -251,7 +308,7 @@
       if (!arrastre) return;
       var movido = Math.abs(e.clientX - arrastre.x0) + Math.abs(e.clientY - arrastre.y0);
       arrastre = null; lienzo.classList.remove("arrastrando");
-      if (movido < 6) { var id = tocar(); if (id) elegir(id); }
+      if (movido < 6) { var id = tocar(); if (id) elegir(id); else ocultarPais(); }
     });
     lienzo.addEventListener("pointercancel", function () { arrastre = null; lienzo.classList.remove("arrastrando"); });
     lienzo.addEventListener("pointerleave", function () { raton.dentro = false; });
@@ -277,12 +334,12 @@
         var o = hits[i].object;
         if (o.userData.nivel === "vo" && dist < 1.35) return "vo";
         if (o.userData.nivel === "md") return "md";
-        if (o.userData.id === "es" && dist > 1.35) return "es";
+        if (o.userData.id && dist > 1.35) return o.userData.id;
         if (o === oceano) break;
       }
       if (dist < 1.35) return null;
       var cerca = null, mejor = 0.09;
-      marcadores.forEach(function (m) { if (m.id !== "es") return; m.g.getWorldPosition(wtmp); var dd = wtmp.distanceTo(hits[0].point); if (dd < mejor) { mejor = dd; cerca = m.id; } });
+      marcadores.forEach(function (m) { m.g.getWorldPosition(wtmp); var dd = wtmp.distanceTo(hits[0].point); if (dd < mejor) { mejor = dd; cerca = m.id; } });
       return cerca;
     }
     var ancho = 0, offX = 0, metaOffX = 0, distEncuadre = 3.3;
@@ -322,6 +379,20 @@
       et.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translate(-50%, " + (abajo ? "14px" : "calc(-100% - 14px)") + ")";
     }
 
+    // La ficha del país se coloca al lado de su punto (a la derecha o a la izquierda, según quepa).
+    function colocarFicha(m) {
+      if (!m) return;
+      var w = contenedor.clientWidth, h = contenedor.clientHeight;
+      wtmp.copy(m.g.position).applyMatrix4(tierra.matrixWorld);
+      var cara = ncam.copy(wtmp).normalize().dot(camara.position.clone().normalize());
+      wtmp.project(camara);
+      var x = (wtmp.x + 1) / 2 * w + contenedor.offsetLeft, y = (1 - wtmp.y) / 2 * h + contenedor.offsetTop;
+      var fw = fichaPais.offsetWidth, fh = fichaPais.offsetHeight, movil = w < 600;
+      var fx = movil ? (zona.clientWidth - fw) / 2 : (x + 28 + fw < zona.clientWidth - 12 ? x + 28 : x - 28 - fw);
+      var fy = movil ? 12 : Math.max(12, Math.min(zona.clientHeight - fh - 12, y - fh / 2));
+      fichaPais.style.transform = "translate(" + fx.toFixed(1) + "px," + fy.toFixed(1) + "px)";
+      fichaPais.style.opacity = cara > 0.25 ? 1 : 0;
+    }
     var visible = true, pausado = false, enMarcha = false, antes = performance.now(), reloj = 0;
     function cuadro(ahora) {
       var dt = Math.min(0.05, (ahora - antes) / 1000); antes = ahora; reloj += dt;
@@ -360,6 +431,7 @@
       renderer.render(escena, camara);
       var opEs = suave(1.7, 2.2, dist);
       marcadores.forEach(function (m) { colocar(m.et, m.g.position, m.verde ? opEs : lejos); });
+      if (paisActivo && fichaPais) colocarFicha(marcadores.filter(function (m) { return m.id === paisActivo; })[0]);
       lugares.forEach(function (l) {
         var o = l.vis === "md-lejos" ? vEsp * suave(1.06, 1.2, dist) * (1 - suave(1.9, 2.2, dist)) : vMd;
         if (l.nivel === "vo") o = vMd;
@@ -373,7 +445,9 @@
     new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) despertar(); }).observe(zona);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) despertar(); });
     despertar();
-    return { enfocar: enfocar, acercar: acercar, global: vistaGlobal, pausar: function (si) { pausado = si; if (!si) despertar(); },
+    return { enfocar: enfocar, acercar: acercar, global: vistaGlobal,
+             girarA: function (id) { var m = marcadores.filter(function (x) { return x.id === id; })[0]; if (!m) return; irA(m.d.lat, m.d.lon, metaDist); marcadores.forEach(function (x) { x.et.classList.toggle("con-ficha", x.id === id); }); },
+             soltar: function () { marcadores.forEach(function (x) { x.et.classList.remove("con-ficha"); }); ultimo = performance.now(); despertar(); }, pausar: function (si) { pausado = si; if (!si) despertar(); },
              encuadre: function () { encuadre(); if (!seleccion) metaDist = distEncuadre; despertar(); } };
   }
 

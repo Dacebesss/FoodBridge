@@ -35,10 +35,11 @@
     escenaTierra.classList.add("oculta");
     if (tres) { tres.llegada(directo); tres.arrancar(); }
     etiquetas[0].focus({ preventScroll: true });
-    try { history.replaceState(null, "", "#puente"); } catch (e) { /* sin historial */ }
+    if (!/^#directo/.test(location.hash)) { try { history.replaceState(null, "", "#puente"); } catch (e) { /* sin historial */ } }
   }
   function volverATierra() {
     cerrarCapitulo();
+    pararDirecto();
     mostrado = false;
     escenaPuente.classList.remove("visible");
     escenaPuente.setAttribute("aria-hidden", "true");
@@ -105,12 +106,93 @@
   if (window.THREE) { try { tres = crearPuente(); } catch (e) { tres = null; } }
   if (!tres) escenaPuente.classList.add("sin-3d");
 
-  // Enlace directo: …/#puente abre directamente el puente (útil para compartir).
-  if (location.hash === "#puente") mostrarPuente(true);
-  window.addEventListener("hashchange", function () {
-    if (location.hash === "#puente" && !mostrado) mostrarPuente(true);
-    else if (location.hash !== "#puente" && mostrado) volverATierra();
-  });
+  /* =========================================================
+     FoodBridge en directo (…/#directo): el público dona desde su móvil
+     y en la pantalla grande sale una furgoneta por cada envío.
+     …/#directo-ensayo hace lo mismo sin servidor (envíos simulados) para ensayar.
+     ========================================================= */
+  var directo = null;
+  var panelDirecto = document.getElementById("panel-directo"), avisoHito = document.getElementById("aviso-hito");
+  var cifraKg = document.getElementById("pd-kg"), cifraLotes = document.getElementById("pd-lotes");
+  var HITOS = { 1: "¡Primer lote rescatado en esta sala!", 5: "¡5 lotes rescatados!", 10: "¡10 lotes rescatados!", 25: "¡25 lotes! El puente no para", 50: "¡50 lotes rescatados en esta sala!", 100: "¡100 lotes! Esto es FoodBridge" };
+  function formatoKg(n) { return n.toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 2 }); }
+  function animarCifra(el, desde, hasta, formato) {
+    var t0 = performance.now();
+    (function paso(t) {
+      var u = Math.min(1, (t - t0) / 700), v = desde + (hasta - desde) * (1 - Math.pow(1 - u, 3));
+      el.textContent = formato(v);
+      if (u < 1) requestAnimationFrame(paso);
+    })(t0);
+  }
+  function hito(texto) {
+    avisoHito.textContent = texto; avisoHito.hidden = false;
+    avisoHito.classList.remove("entra"); void avisoHito.offsetWidth; avisoHito.classList.add("entra");
+    clearTimeout(hito.t); hito.t = setTimeout(function () { avisoHito.hidden = true; }, 3200);
+  }
+  function llegada(envio) {
+    var kg0 = directo.kg, n0 = directo.lotes;
+    directo.kg += envio.kg; directo.lotes += 1;
+    animarCifra(cifraKg, kg0, directo.kg, formatoKg);
+    animarCifra(cifraLotes, n0, directo.lotes, function (v) { return Math.round(v).toLocaleString("es-ES"); });
+    if (HITOS[directo.lotes]) hito(HITOS[directo.lotes]);
+  }
+  function iniciarDirecto(ensayo) {
+    if (directo) return;
+    directo = { ensayo: ensayo, ultimo: -1, kg: 0, lotes: 0, temporizador: null };
+    panelDirecto.hidden = false;
+    escenaPuente.classList.add("en-directo");
+    var url = location.origin + "/directo/";
+    document.getElementById("pd-url").textContent = location.host + "/directo";
+    if (window.qrcode) {
+      var qr = window.qrcode(0, "M"); qr.addData(url); qr.make();
+      document.getElementById("pd-qr").innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    }
+    if (tres) { tres.alLlegar = llegada; tres.irA(null); }
+    if (ensayo) simular(); else sondear();
+  }
+  function pararDirecto() {
+    if (!directo) return;
+    clearTimeout(directo.temporizador);
+    directo = null;
+    panelDirecto.hidden = true;
+    escenaPuente.classList.remove("en-directo");
+    if (tres) tres.irA(null);
+  }
+  function lanzar(envio) { if (tres) tres.lanzarEnvio(envio); else llegada(envio); }
+  async function sondear() {
+    if (!directo) return;
+    try {
+      var r = await fetch("/directo/estado/?desde=" + directo.ultimo, { cache: "no-store" });
+      var d = await r.json();
+      if (directo.ultimo < 0) {
+        // Primera vez: el contador empieza con lo que ya había; solo se animan los envíos nuevos.
+        directo.kg = d.total.kg - 0; directo.lotes = d.total.lotes;
+        cifraKg.textContent = formatoKg(directo.kg); cifraLotes.textContent = directo.lotes.toLocaleString("es-ES");
+      } else {
+        d.envios.forEach(lanzar);
+      }
+      directo.ultimo = d.ultimo;
+    } catch (e) { /* sin conexión: se reintenta */ }
+    if (directo) directo.temporizador = setTimeout(sondear, 2000);
+  }
+  // Ensayo sin servidor: envíos inventados cada pocos segundos (para probar la pantalla).
+  var EJEMPLOS = [["pan", "barras de pan", 0.25], ["yogures", "yogures", 0.125], ["fruta", "kg de fruta", 1], ["leche", "litros de leche", 1], ["bolleria", "piezas de bollería", 0.08], ["platos", "platos preparados", 0.4], ["verdura", "kg de verdura", 1], ["conservas", "latas de conserva", 0.4]];
+  var numeroEnsayo = 0;
+  function simular() {
+    if (!directo) return;
+    var e = EJEMPLOS[Math.floor(Math.random() * EJEMPLOS.length)], u = 1 + Math.floor(Math.random() * 12), kg = Math.round(u * e[2] * 100) / 100;
+    lanzar({ numero: ++numeroEnsayo, producto: e[0], kg: kg, texto: u + " " + e[1] + " · " + kg.toLocaleString("es-ES") + " kg" });
+    directo.temporizador = setTimeout(simular, 1200 + Math.random() * 2600);
+  }
+
+  // Enlaces directos: …/#puente abre el puente; …/#directo, el modo en directo.
+  function segunHash() {
+    if (/^#directo/.test(location.hash)) { if (!mostrado) mostrarPuente(true); iniciarDirecto(location.hash === "#directo-ensayo"); }
+    else if (location.hash === "#puente") { pararDirecto(); if (!mostrado) mostrarPuente(true); }
+    else if (mostrado) volverATierra();
+  }
+  if (location.hash) segunHash();
+  window.addEventListener("hashchange", segunHash);
 
   function crearPuente() {
     var T = window.THREE;
@@ -195,7 +277,9 @@
 
     /* ---------- Furgonetas con el logo de FoodBridge ---------- */
     // El rótulo del lateral se dibuja en un lienzo: logo, "FoodBridge" y una franja de color.
+    var rotulos = {};
     function rotulo(colorFranja) {
+      if (rotulos[colorFranja]) return rotulos[colorFranja];
       var c = document.createElement("canvas"); c.width = 512; c.height = 256;
       var x = c.getContext("2d");
       x.fillStyle = "#F4FAF6"; x.fillRect(0, 0, 512, 256);
@@ -218,6 +302,7 @@
       var tex = new T.CanvasTexture(c);
       tex.anisotropy = 4;
       if ("colorSpace" in tex) tex.colorSpace = T.SRGBColorSpace;
+      rotulos[colorFranja] = tex;
       return tex;
     }
     var matCarroceria = new T.MeshLambertMaterial({ color: 0xF1F7F3 });
@@ -226,6 +311,7 @@
     var geoCaja = new T.BoxGeometry(2.7, 1.55, 1.3), geoCabina = new T.BoxGeometry(1.05, 1.15, 1.26);
     var geoCristal = new T.BoxGeometry(0.06, 0.5, 1.1), geoRueda = new T.CylinderGeometry(0.28, 0.28, 0.22, 16);
     var geoRotulo = new T.PlaneGeometry(2.6, 1.3);
+    var materialesRotulo = {};
     function furgoneta(colorFranja) {
       var g = new T.Group();
       var cuerpo = new T.Mesh(geoCaja, matCarroceria); cuerpo.position.set(-0.45, 1.05, 0); g.add(cuerpo);
@@ -234,7 +320,7 @@
       [[-1.25, 0.66], [-1.25, -0.66], [1.3, 0.66], [1.3, -0.66]].forEach(function (p) {
         var rueda = new T.Mesh(geoRueda, matRueda); rueda.rotation.x = Math.PI / 2; rueda.position.set(p[0], 0.28, p[1]); g.add(rueda);
       });
-      var mat = new T.MeshBasicMaterial({ map: rotulo(colorFranja) });
+      var mat = materialesRotulo[colorFranja] || (materialesRotulo[colorFranja] = new T.MeshBasicMaterial({ map: rotulo(colorFranja) }));
       [0.661, -0.661].forEach(function (z) {
         var lado = new T.Mesh(geoRotulo, mat);
         lado.position.set(-0.45, 1.05, z);
@@ -310,10 +396,71 @@
     chip.className = "chip-furgo fuera"; chip.setAttribute("aria-hidden", "true");
     escenaPuente.appendChild(chip);
 
+    /* ---------- FoodBridge en directo: una furgoneta por cada envío del público ---------- */
+    var envios = [], cola = [], ultimoLanzamiento = -10, relojReal = 0;
+    var API = null;
+    function crearEnvio(d) {
+      var e = { d: d, x: -66, carril: envios.length % 2 ? -1 : 1, llegado: false, t: 0 };
+      e.g = furgoneta("#F5A524");
+      e.el = document.createElement("span");
+      e.el.className = "etq-envio fuera"; e.el.setAttribute("aria-hidden", "true");
+      e.el.textContent = (d.numero ? "#" + d.numero + " · " : "") + d.texto;
+      escenaPuente.appendChild(e.el);
+      envios.push(e);
+    }
+    // Estallido de luz al entregar: unas chispas verdes que suben y se apagan.
+    var chispas = [];
+    function estallido(pos) {
+      var n = 40, posiciones = new Float32Array(n * 3), vel = [];
+      for (var i = 0; i < n; i++) {
+        posiciones[i * 3] = pos.x; posiciones[i * 3 + 1] = pos.y + 2; posiciones[i * 3 + 2] = pos.z;
+        vel.push([(Math.random() - 0.5) * 8, 4 + Math.random() * 7, (Math.random() - 0.5) * 8]);
+      }
+      var g = new T.BufferGeometry(); g.setAttribute("position", new T.BufferAttribute(posiciones, 3));
+      var m = new T.PointsMaterial({ color: 0x4ADE80, size: 0.55, transparent: true, opacity: 1, depthWrite: false, blending: T.AdditiveBlending });
+      var pts = new T.Points(g, m); escena.add(pts);
+      chispas.push({ p: pts, vel: vel, t: 0 });
+    }
+    function moverEnvios(dt) {
+      relojReal += dt;
+      if (cola.length && relojReal - ultimoLanzamiento > 1.1 && envios.filter(function (e) { return !e.llegado; }).length < 16) {
+        crearEnvio(cola.shift()); ultimoLanzamiento = relojReal;
+      }
+      for (var i = envios.length - 1; i >= 0; i--) {
+        var e = envios[i];
+        if (!e.llegado) {
+          e.x += dt * 7.5;
+          if (e.x >= 57) {
+            e.llegado = true; e.x = 57;
+            e.el.textContent = "✓ Entregado · " + e.d.texto; e.el.classList.add("entregado");
+            estallido(e.g.position);
+            if (API && API.alLlegar) API.alLlegar(e.d);
+          }
+        } else e.t += dt;
+        var s = e.llegado ? Math.max(0, 1 - e.t / 1.6) : Math.min(1, (e.x + 66) / 4);
+        e.g.position.set(e.x, 0, e.carril * 1.15);
+        e.g.scale.setScalar(Math.max(0.0001, s * 1.4));
+        tmp.copy(e.g.position); colocar(e.el, tmp, e.carril > 0 ? 3.6 : 5.6, s < 0.3);
+        if (e.t > 1.8) { escena.remove(e.g); e.el.remove(); envios.splice(i, 1); }
+      }
+      for (var j = chispas.length - 1; j >= 0; j--) {
+        var c = chispas[j], arr = c.p.geometry.attributes.position.array;
+        c.t += dt;
+        for (var k = 0; k < c.vel.length; k++) {
+          c.vel[k][1] -= 9 * dt;
+          arr[k * 3] += c.vel[k][0] * dt; arr[k * 3 + 1] += c.vel[k][1] * dt; arr[k * 3 + 2] += c.vel[k][2] * dt;
+        }
+        c.p.geometry.attributes.position.needsUpdate = true;
+        c.p.material.opacity = Math.max(0, 1 - c.t / 1.3);
+        if (c.t > 1.3) { escena.remove(c.p); c.p.geometry.dispose(); c.p.material.dispose(); chispas.splice(j, 1); }
+      }
+    }
+
     /* ---------- Cámara ---------- */
     var VISTAS = {
       llegada: [[0, 52, 130], [0, 4, 0]],
       general: [[0, 17, 96], [0, 3, 0]],
+      directo: [[16, 10, 76], [16, 1.5, 0]],  // un poco hacia la entidad: la llegada es el momento estrella
       problema: [[-62, 8, 26], [-38, 2, 0]],
       objetivo: [[0, 28, 74], [0, 5, 0]],
       como: [[52, 9, 28], [38, 2, 0]]
@@ -323,7 +470,7 @@
     var vista = "general", lejos = 1;
     function esMovil() { return lienzo.clientWidth < 700; }
     function irA(id) {
-      vista = id || "general";
+      vista = id || (escenaPuente.classList.contains("en-directo") ? "directo" : "general");
       metaPos.fromArray(VISTAS[vista][0]); metaMira.fromArray(VISTAS[vista][1]);
     }
     function medir() {
@@ -373,12 +520,12 @@
     function cuadro() {
       if (!activo) return;
       requestAnimationFrame(cuadro);
-      var dt = Math.min(reloj.getDelta(), 0.12); // aunque el móvil vaya lento, la animación no se queda atrás
+      var dtReal = reloj.getDelta(), dt = Math.min(dtReal, 0.12); // aunque el móvil vaya lento, la animación no se queda atrás
       if (!reducido) tiempo += dt;
       var k = reducido ? 1 : 1 - Math.exp(-dt * 1.8);
       camPos.lerp(metaPos, k); camMira.lerp(metaMira, k);
       // Un ligero vaivén en la vista general para que la escena respire.
-      var vaiven = (!reducido && vista === "general") ? Math.sin(tiempo * 0.22) * 5 : 0;
+      var vaiven = (!reducido && (vista === "general" || vista === "directo")) ? Math.sin(tiempo * 0.22) * 5 : 0;
       camara.position.copy(camPos); camara.position.x += vaiven;
       if (lejos !== 1) camara.position.sub(camMira).multiplyScalar(lejos).add(camMira);
       camara.lookAt(camMira);
@@ -405,6 +552,8 @@
         f.g.position.set(x, 0, f.carril * 1.15);
         // Aparecen al salir del comercio y desaparecen al llegar a la entidad.
         var s = Math.min(1, Math.max(0, Math.min(x + 64, 64 - x) / 4));
+        // En directo solo cruzan las furgonetas del público: el protagonismo es suyo.
+        if (escenaPuente.classList.contains("en-directo")) s = 0;
         f.g.scale.setScalar(Math.max(0.0001, s * 1.4));
         if (f.boton) { tmp.copy(f.g.position); colocar(f.boton, tmp, 3.5, s < 0.6 || (demo && f.id === "como")); }
       });
@@ -418,6 +567,7 @@
       lucesTablero.opacity = 0.45 + brillo * 0.55 * pulso;
       lineasPuente.opacity = 0.6 + brillo * 0.35;
       lineasTenues.opacity = 0.32 + brillo * (0.25 + 0.2 * pulso);
+      moverEnvios(Math.min(dtReal, 0.12));
       colocar(etqComercio, pComercio, 0);
       colocar(etqEntidad, pEntidad, 0);
       renderer.render(escena, camara);
@@ -429,6 +579,7 @@
     function encuadrarHueco(k) {
       var w = lienzo.clientWidth, h = lienzo.clientHeight, ox = 0, oy = 0;
       var panel = abierto && paneles[abierto];
+      if (!panel && escenaPuente.classList.contains("en-directo")) oy = -h * 0.16;
       if (panel && !panel.hidden) {
         var r = panel.getBoundingClientRect(), c = lienzo.getBoundingClientRect();
         if (esMovil()) oy = (r.top - c.top) / 2 - h / 2;
@@ -441,7 +592,9 @@
 
     irA(null);
     medir();
-    return {
+    API = {
+      alLlegar: null,
+      lanzarEnvio: function (d) { cola.push(d); },
       irA: irA,
       llegada: function (directo) {
         var desde = (directo || reducido) ? VISTAS.general : VISTAS.llegada;
@@ -451,5 +604,6 @@
       arrancar: function () { if (activo) return; activo = true; medir(); reloj.getDelta(); cuadro(); },
       parar: function () { activo = false; }
     };
+    return API;
   }
 })();
