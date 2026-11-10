@@ -1,77 +1,52 @@
 {% extends "base.html" %}
 {% load static %}
-{# Portada: planeta 3D interactivo + secciones informativas. #}
-{# El dibujo del planeta y la interactividad están en static/js/planeta.js. #}
+{# Portada en dos escenas: (1) la Tierra; al tocar Villaviciosa de Odón, (2) el puente con furgonetas. #}
+{# Cada furgoneta especial abre un capítulo: El problema, Nuestro objetivo y Cómo funciona. #}
+{# Planeta: static/js/planeta.js · Puente: static/js/puente.js #}
 {% block title %}FoodBridge · Que ningún alimento apto se tire{% endblock %}
 {% block body_class %}portada{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/portada.css' %}">
 <link rel="stylesheet" href="{% static 'css/puente.css' %}">{% endblock %}
-{% block menu %}
-  <nav class="menu" aria-label="Secciones">
-    <a href="#cifras">El problema</a>
-    <a href="#objetivo">Nuestro objetivo</a>
-    <a href="#como">Cómo funciona</a>
-  </nav>
-{% endblock %}
+{% block menu %}<span class="espaciador"></span>{% endblock %}
 {% block cuerpo %}
 <main>
-<section class="planeta" id="inicio" aria-label="Planeta interactivo del desperdicio alimentario">
-  <div class="planeta-lienzo" id="planeta-lienzo">
-    <canvas id="globo" tabindex="0" aria-label="Globo terráqueo en 3D. Arrástralo o usa las flechas para girarlo. Los puntos rojos son países y el verde es España; también puedes elegirlos con los botones del panel."></canvas>
-  </div>
-  <div class="envoltura">
-    <div class="intro-planeta">
-      <p class="antetitulo">Desperdicio alimentario · 2022</p>
-      <h1><span class="cifra-heroe">1.052</span><span class="linea-heroe">millones de toneladas de comida tiradas en el mundo</span></h1>
-      <p class="pista-heroe">Gira el planeta y toca los puntos</p>
+<section class="escenario" id="escenario" aria-label="FoodBridge: de la Tierra a Villaviciosa de Odón">
+
+  {# ---------- Escena 1: la Tierra ---------- #}
+  <div class="escena-tierra planeta" id="inicio">
+    <div class="planeta-lienzo" id="planeta-lienzo">
+      <canvas id="globo" tabindex="0" aria-label="Globo terráqueo en 3D. Arrástralo o usa las flechas para girarlo. Los puntos rojos son datos de desperdicio por país; el verde es Villaviciosa de Odón."></canvas>
     </div>
-    <div class="hueco-planeta" aria-hidden="true"></div>
-    <aside class="panel" id="panel" aria-live="polite"></aside>
-  </div>
-  <div class="controles-planeta">
-    <button class="ctrl" id="c-menos" type="button" aria-label="Alejar">−</button>
-    <button class="ctrl" id="c-global" type="button">Vista global</button>
-    <button class="ctrl" id="c-mas" type="button" aria-label="Acercar">+</button>
-  </div>
-</section>
-
-{# Historia: un puente 3D fijo de fondo (static/js/puente.js) que la cámara recorre mientras bajas. #}
-<div class="historia" id="historia">
-  <div class="historia-fondo" aria-hidden="true">
-    <canvas id="puente"></canvas>
-    <span class="etq-puente comercio" id="etq-comercio">Comercio</span>
-    <span class="etq-puente entidad" id="etq-entidad">Entidad social</span>
-  </div>
-
-  <div class="escena centro">
-    <div class="envoltura">
-      <div class="intro-puente">
-        <p class="antetitulo">FoodBridge</p>
-        <h2>Un puente entre la comida que sobra y quien la necesita</h2>
-        <p>Baja para cruzarlo.</p>
-      </div>
+    <div class="marca-tierra">
+      <div class="marca-grande">{% include "_logo.html" with size=56 %}<span>Food<b>Bridge</b></span></div>
+      <p>La comida que sobra, para quien la necesita</p>
+      <button class="pista-villa" id="ir-villa" type="button"><span class="punto verde" aria-hidden="true"></span>Toca Villaviciosa de Odón</button>
     </div>
   </div>
 
-  <section class="capitulo" id="cifras" aria-labelledby="titulo-problema">
-    <div class="escena izq">
-      <div class="envoltura">
-        <div class="panel-historia">
-          <p class="antetitulo" style="color: var(--coral)">El problema</p>
-          <h2 id="titulo-problema">Se tira comida en casa, en restaurantes y en tiendas</h2>
-          <p class="entradilla">Datos de 2022 de Naciones Unidas (UNEP, Food Waste Index Report 2024).</p>
-          <div class="cifras">
+  {# ---------- Escena 2: el puente ---------- #}
+  <div class="escena-puente" id="escena-puente" aria-hidden="true">
+    <canvas id="puente" aria-hidden="true"></canvas>
+    <span class="etq-puente comercio" id="etq-comercio" aria-hidden="true">Comercio</span>
+    <span class="etq-puente entidad" id="etq-entidad" aria-hidden="true">Entidad social</span>
+    <div class="furgonetas" role="group" aria-label="Furgonetas: elige qué quieres ver">
+      <button class="furgo-etq problema" type="button" data-capitulo="problema" aria-controls="cap-problema"><span class="punto" aria-hidden="true"></span>El problema</button>
+      <button class="furgo-etq objetivo" type="button" data-capitulo="objetivo" aria-controls="cap-objetivo"><span class="punto" aria-hidden="true"></span>Nuestro objetivo</button>
+      <button class="furgo-etq como" type="button" data-capitulo="como" aria-controls="cap-como"><span class="punto" aria-hidden="true"></span>Cómo funciona</button>
+    </div>
+    <button class="volver-tierra" id="volver-tierra" type="button">← Volver a la Tierra</button>
+    <p class="pista-puente" id="pista-puente">Toca una furgoneta para ver qué lleva</p>
+
+    <section class="panel-historia capitulo-panel" id="cap-problema" aria-labelledby="titulo-problema" hidden>
+      <button class="cerrar-capitulo" type="button" aria-label="Cerrar">×</button>
+      <p class="antetitulo" style="color: var(--coral)">El problema</p>
+      <h2 id="titulo-problema">Se tira comida en casa, en restaurantes y en tiendas</h2>
+      <p class="entradilla">En 2022 se tiraron <b>1.052 millones de toneladas</b> de comida en el mundo (Naciones Unidas, UNEP, Food Waste Index Report 2024).</p>
+      <div class="cifras">
       <div class="cifra"><span class="valor" style="color: var(--coral)">132&nbsp;kg</span><p>de comida tirada por persona y año en el mundo.</p></div>
       <div class="cifra"><span class="valor" style="color: var(--ambar)">19&nbsp;%</span><p>de los alimentos disponibles para los consumidores acaba en la basura.</p></div>
       <div class="cifra"><span class="valor" style="color: #2DD4BF">8–10&nbsp;%</span><p>de las emisiones mundiales de gases de efecto invernadero.</p></div>
-    </div>
-        </div>
-      </div>
-    </div>
-    <div class="escena der">
-      <div class="envoltura">
-        <div class="panel-historia">
-          <div class="reparto">
+      <div class="reparto">
       <h3>¿Dónde se tira?</h3>
       <p class="sub">Millones de toneladas en 2022. Toca cada parte.</p>
       <div class="tira" role="group" aria-label="Reparto del desperdicio por sector">
@@ -80,19 +55,14 @@
         <button class="tramo c" type="button" data-tramo="c" aria-pressed="false">Comercio · 131</button>
       </div>
       <p class="detalle-tramo" id="detalle-tramo"></p>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="capitulo" id="objetivo" aria-labelledby="titulo-objetivo">
-    <div class="escena izq">
-      <div class="envoltura">
-        <div class="panel-historia medio">
-          <p class="antetitulo" style="color: var(--menta)">Nuestro objetivo</p>
-          <h2 id="titulo-objetivo">Del problema global a la calle de al lado</h2>
-          <p class="entradilla">Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
-          <div class="escala">
+    <section class="panel-historia capitulo-panel medio" id="cap-objetivo" aria-labelledby="titulo-objetivo" hidden>
+      <button class="cerrar-capitulo" type="button" aria-label="Cerrar">×</button>
+      <p class="antetitulo" style="color: var(--menta)">Nuestro objetivo</p>
+      <h2 id="titulo-objetivo">Del problema global a la calle de al lado</h2>
+      <p class="entradilla">Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
+      <div class="escala">
       <div class="anillos" role="group" aria-label="Escalas">
         <button class="anillo a1" type="button" data-escala="es" aria-pressed="false">España</button>
         <button class="anillo a2" type="button" data-escala="md" aria-pressed="false">Comunidad de Madrid</button>
@@ -100,35 +70,23 @@
       </div>
       <div class="ficha-escala" id="ficha-escala" aria-live="polite"></div>
     </div>
-        </div>
-      </div>
-    </div>
-    <div class="escena der">
-      <div class="envoltura">
-        <div class="panel-historia">
-          <p class="antetitulo" style="color: var(--menta)">La Ley 1/2025 fija el orden</p>
-          <h2>Primero prevenir, después donar</h2>
-          <p class="entradilla">La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
-          <ol class="jerarquia">
+      <h3 class="subtitulo-ley">La Ley 1/2025 fija el orden</h3>
+      <p class="entradilla">La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
+      <ol class="jerarquia">
         <li class="peldano"><span class="n">1</span><h3>Prevenir</h3><p>Que no sobre.</p></li>
         <li class="peldano activo"><span class="n">2</span><h3>Donar</h3><p>A entidades sociales, para consumo humano.</p></li>
         <li class="peldano"><span class="n">3</span><h3>Transformar</h3><p>En otros alimentos.</p></li>
         <li class="peldano"><span class="n">4</span><h3>Animales</h3><p>Como alimento animal.</p></li>
         <li class="peldano"><span class="n">5</span><h3>Compost o energía</h3><p>Último recurso.</p></li>
       </ol>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="capitulo" id="como" aria-labelledby="titulo-como">
-    <div class="escena centro">
-      <div class="envoltura">
-        <div class="panel-historia ancho">
-          <p class="antetitulo" style="color: #2DD4BF">Cómo funciona</p>
-          <h2 id="titulo-como">Qué hace cada uno, paso a paso</h2>
-          <p class="entradilla">Elige tu papel y recorre los pasos.</p>
-          <div class="pestanas" role="tablist" aria-label="Papel">
+    <section class="panel-historia capitulo-panel ancho" id="cap-como" aria-labelledby="titulo-como" hidden>
+      <button class="cerrar-capitulo" type="button" aria-label="Cerrar">×</button>
+      <p class="antetitulo" style="color: #2DD4BF">Cómo funciona</p>
+      <h2 id="titulo-como">Qué hace cada uno, paso a paso</h2>
+      <p class="entradilla">Elige tu papel y recorre los pasos.</p>
+      <div class="pestanas" role="tablist" aria-label="Papel">
       <button class="pestana" role="tab" id="tab-comercio" aria-selected="true" aria-controls="flujo" data-rol="comercio">Comercio</button>
       <button class="pestana" role="tab" id="tab-entidad" aria-selected="false" aria-controls="flujo" data-rol="entidad">Entidad social</button>
       <button class="pestana" role="tab" id="tab-admin" aria-selected="false" aria-controls="flujo" data-rol="admin">Administración</button>
@@ -136,17 +94,9 @@
     <div class="flujo" id="flujo" role="tabpanel" aria-labelledby="tab-comercio">
       <ol class="pasos" id="pasos"></ol>
       <div class="movil" aria-hidden="true"><div class="pantalla" id="pantalla"></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="recorrido" id="recorrido" aria-hidden="true">
-    <span>Comercio</span>
-    <span class="via"><i class="viajero" id="viajero"></i></span>
-    <span>Entidad social</span>
+    </section>
   </div>
-</div>
+</section>
 
 <section class="seccion suave" id="equipo" style="padding-block: 72px;">
   <div class="envoltura">

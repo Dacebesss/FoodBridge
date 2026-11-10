@@ -15,7 +15,7 @@
     { id: "jp", nombre: "Japón", lat: 36.5, lon: 138.5, reduccion: 28, pie: "de desperdicio por persona entre 2008 y 2020",
       texto: "Un ejemplo de que se puede reducir: −29 % en los hogares y −35 % en restauración.", fuente: "UNEP, Food Waste Index Report 2024" }
   ];
-  var ESPANA = { id: "es", nombre: "España", lat: 40.2, lon: -3.7 };
+  var ESPANA = { id: "es", nombre: "Villaviciosa de Odón", lat: 40.357, lon: -3.902 };
   var ESCALAS = {
     es: { titulo: "España", sub: "Ministerio de Agricultura · datos de 2024",
       kpis: [["1.125", "millones de kg o litros tirados"], ["97,5 %", "en los hogares"], ["−4,4 %", "respecto a 2023"]],
@@ -27,62 +27,24 @@
       objetivos: ["Conectar los comercios de alimentación con las entidades sociales verificadas del municipio.", "Que ningún alimento apto se tire: publicar, reservar y entregar en la misma tarde.", "Registrar cada entrega para que los comercios puedan demostrar que donan, como pide la Ley 1/2025.", "Crear un modelo que cualquier municipio pueda copiar."] }
   };
 
-  /* ===== Panel del planeta ===== */
-  var panel = document.getElementById("panel");
-  var seleccion = null;
-  function chips() {
-    return '<div class="chips" role="group" aria-label="Elegir país">' + PAISES.map(function (p) {
-      return '<button class="chip" type="button" data-pais="' + p.id + '" aria-pressed="' + (seleccion === p.id) + '"><span class="punto rojo"></span>' + p.nombre + '</button>';
-    }).join("") + '<button class="chip" type="button" data-pais="es" aria-pressed="' + (seleccion === "es") + '"><span class="punto verde"></span>España</button></div>';
+  /* ===== Viaje: al tocar Villaviciosa de Odón, zoom en tres saltos y salto al puente ===== */
+  // Solo Villaviciosa responde al toque; los demás puntos son decoración con datos.
+  var seleccion = null, viajando = false;
+  function cruzar() { viajando = false; document.dispatchEvent(new CustomEvent("foodbridge:cruzar")); }
+  function viajar() {
+    if (viajando) return;
+    viajando = true; seleccion = "vo";
+    if (!globo || reducido) { cruzar(); return; }
+    globo.acercar("es");
+    setTimeout(function () { globo.acercar("md"); }, 1300);
+    setTimeout(function () { globo.acercar("vo"); }, 2500);
+    setTimeout(cruzar, 3900);
   }
-  function barra(nombre, v, max, color) {
-    return '<div><div style="display:flex;justify-content:space-between"><span>' + nombre + '</span><span class="num">' + v + ' kg</span></div><div class="barra"><i style="width:' + (v / max * 100).toFixed(1) + '%;background:' + color + '"></i></div></div>';
-  }
-  function marcarEnfoque() { document.getElementById("inicio").classList.toggle("enfocado", !!seleccion); if (typeof globo !== "undefined" && globo && globo.encuadre) globo.encuadre(); }
-  function panelInicio() {
-    seleccion = null; marcarEnfoque();
-    panel.innerHTML = '<p class="antetitulo verde-txt" style="margin-bottom:6px">Media mundial · último dato publicado</p><h2>132 kg por persona al año</h2><p class="sub" style="margin-top:4px">Datos de 2022, publicados por la ONU en 2024. Es la edición más reciente.</p>' +
-      '<div class="barras">' + barra("Hogares", 79, 132, "var(--coral)") + barra("Restauración", 36, 132, "var(--ambar)") + barra("Comercio", 17, 132, "#2DD4BF") + '</div>' +
-      '<p class="fuente">UNEP, Food Waste Index Report 2024 (última edición)</p>' + chips() + '<ul class="leyenda"><li><span class="punto rojo"></span>Desperdicio por país</li><li><span class="punto verde"></span>Nuestro objetivo</li></ul>';
-  }
-  function panelPais(p) {
-    seleccion = p.id; marcarEnfoque();
-    var h = '<h2>' + p.nombre + '</h2>';
-    if (p.reduccion) h += '<div class="dato-grande verde-txt">−' + p.reduccion + ' %</div><p class="dato-pie">' + p.pie + '</p>';
-    else {
-      h += '<div class="dato-grande rojo-txt">' + p.kg + '</div><p class="dato-pie">' + p.pie + '</p>';
-      h += '<div class="barras">' + (p.hogar ? barra("En los hogares", p.hogar, 140, "var(--coral)") : barra(p.nombre, p.kg, 140, "var(--coral)")) + barra("Media mundial en hogares", MEDIA_HOGAR, 140, "rgba(255,255,255,0.4)") + '</div>';
-    }
-    h += '<p>' + p.texto + '</p><p class="fuente">Fuente: ' + p.fuente + '</p>' + chips();
-    panel.innerHTML = h;
-  }
-  function panelEspana(nivel) {
-    seleccion = "es"; nivel = nivel || "es"; marcarEnfoque();
-    var e = ESCALAS[nivel];
-    var h = '<div class="migas" role="group" aria-label="Nivel">' + ["es", "md", "vo"].map(function (k) {
-      return '<button class="miga" type="button" data-nivel="' + k + '" aria-current="' + (k === nivel) + '">' + ESCALAS[k].titulo + '</button>';
-    }).join('<span aria-hidden="true">›</span>') + '</div>';
-    h += '<h2>' + e.titulo + '</h2><p class="sub">' + e.sub + '</p>';
-    if (e.kpis) h += '<div class="kpis-panel">' + e.kpis.map(function (x) { return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("") + '</div>';
-    if (e.objetivos) h += '<p style="margin:6px 0 0;font-weight:700;color:#FFFFFF">Nuestro objetivo</p><ul class="objetivos">' + e.objetivos.map(function (o) { return "<li><span>" + o + "</span></li>"; }).join("") + '</ul>';
-    if (e.lista) h += e.lista.map(function (o) { return "<p>" + o + "</p>"; }).join("");
-    if (nivel !== "vo") { var sig = nivel === "es" ? "md" : "vo"; h += '<button class="btn btn-menta" type="button" data-nivel="' + sig + '" style="margin-top:8px;min-height:38px;font-size:14px">Acercar a ' + ESCALAS[sig].titulo + ' →</button>'; }
-    panel.innerHTML = h + chips();
-  }
-  panel.addEventListener("click", function (ev) {
-    var b = ev.target.closest("button"); if (!b) return;
-    if (b.dataset.pais) elegir(b.dataset.pais);
-    else if (b.dataset.nivel) { panelEspana(b.dataset.nivel); if (globo) { globo.acercar(b.dataset.nivel); verPlaneta(); } }
-  });
-  function elegir(id) {
-    if (id === "es" || id === "md" || id === "vo") panelEspana(id);
-    else panelPais(PAISES.filter(function (x) { return x.id === id; })[0]);
-    if (globo) { globo.enfocar(id); verPlaneta(); }
-  }
-  function verPlaneta() {
-    if (window.innerWidth <= 1080 && globo) document.getElementById("planeta-lienzo").scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
-  }
-  panelInicio();
+  function elegir(id) { if (id === "es" || id === "md" || id === "vo") viajar(); }
+  var botonVilla = document.getElementById("ir-villa");
+  if (botonVilla) botonVilla.addEventListener("click", viajar);
+  document.addEventListener("foodbridge:cruzar", function () { if (globo) globo.pausar(true); });
+  document.addEventListener("foodbridge:volver", function () { seleccion = null; viajando = false; if (globo) { globo.pausar(false); globo.global(); } });
 
   /* ===== Globo 3D ===== */
   var globo = null;
@@ -301,11 +263,7 @@
       else u = false;
       if (u) { e.preventDefault(); ultimo = performance.now(); despertar(); }
     });
-    document.getElementById("c-mas").addEventListener("click", function () { zoom(0.55); });
-    document.getElementById("c-menos").addEventListener("click", function () { zoom(1 / 0.55); });
-    document.getElementById("c-global").addEventListener("click", function () {
-      metaDist = baseDist(); meta.x = 0.42; marcadores.forEach(function (x) { x.et.classList.remove("activa"); }); panelInicio(); despertar();
-    });
+    function vistaGlobal() { metaDist = baseDist(); meta.x = 0.42; marcadores.forEach(function (x) { x.et.classList.remove("activa"); }); ultimo = performance.now(); despertar(); }
 
     var rayo = new THREE.Raycaster(), choques = marcadores.map(function (m) { return m.choque; }), wtmp = new THREE.Vector3();
     function tocar() {
@@ -318,25 +276,21 @@
         var o = hits[i].object;
         if (o.userData.nivel === "vo" && dist < 1.35) return "vo";
         if (o.userData.nivel === "md") return "md";
-        if (o.userData.id && dist > 1.35) return o.userData.id;
+        if (o.userData.id === "es" && dist > 1.35) return "es";
         if (o === oceano) break;
       }
       if (dist < 1.35) return null;
       var cerca = null, mejor = 0.09;
-      marcadores.forEach(function (m) { m.g.getWorldPosition(wtmp); var dd = wtmp.distanceTo(hits[0].point); if (dd < mejor) { mejor = dd; cerca = m.id; } });
+      marcadores.forEach(function (m) { if (m.id !== "es") return; m.g.getWorldPosition(wtmp); var dd = wtmp.distanceTo(hits[0].point); if (dd < mejor) { mejor = dd; cerca = m.id; } });
       return cerca;
     }
     var ancho = 0, offX = 0, metaOffX = 0, distEncuadre = 3.3;
     var intro = zona.querySelector(".intro-planeta");
+    // El planeta ocupa el centro de la pantalla, dejando sitio abajo para el logo y el aviso.
     function encuadre() {
       var w = contenedor.clientWidth, h = contenedor.clientHeight; if (!w || !h) return;
-      if (w <= 1080) { metaOffX = 0; distEncuadre = w < 600 ? 3.95 : 3.15; return; }
-      var cr = contenedor.getBoundingClientRect(), pr2 = panel.getBoundingClientRect();
-      var izq = zona.classList.contains("enfocado") ? 0 : intro.getBoundingClientRect().right - cr.left + 16;
-      var der = pr2.left - cr.left - 16;
-      var centro = (izq + der) / 2;
-      metaOffX = centro - w / 2;
-      var diam = Math.min((der - izq) * 1.08, h * 0.86);
+      metaOffX = 0;
+      var diam = Math.min(w * 0.9, h * 0.7);
       distEncuadre = 1 / ((diam / h) * Math.tan(18 * Math.PI / 180)) + 0.08;
     }
     function baseDist() { encuadre(); return distEncuadre; }
@@ -367,7 +321,7 @@
       et.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translate(-50%, " + (abajo ? "14px" : "calc(-100% - 14px)") + ")";
     }
 
-    var visible = true, enMarcha = false, antes = performance.now(), reloj = 0;
+    var visible = true, pausado = false, enMarcha = false, antes = performance.now(), reloj = 0;
     function cuadro(ahora) {
       var dt = Math.min(0.05, (ahora - antes) / 1000); antes = ahora; reloj += dt;
       if (!arrastre) {
@@ -412,13 +366,14 @@
         colocar(l.et, l.v, o, l.abajo);
       });
       var quieto = Math.abs(metaOffX - offX) < 0.5 && Math.abs(meta.y - rot.y) < 1e-6 && Math.abs(meta.x - rot.x) < 1e-6 && Math.abs(lt - Math.log(dist - 1)) < 1e-3 && Math.abs(vel) < 1e-7;
-      if (visible && !document.hidden && (!reducido || !quieto || arrastre)) requestAnimationFrame(cuadro); else enMarcha = false;
+      if (visible && !pausado && !document.hidden && (!reducido || !quieto || arrastre)) requestAnimationFrame(cuadro); else enMarcha = false;
     }
     function despertar() { if (enMarcha) return; enMarcha = true; antes = performance.now(); requestAnimationFrame(cuadro); }
     new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) despertar(); }).observe(zona);
     document.addEventListener("visibilitychange", function () { if (!document.hidden) despertar(); });
     despertar();
-    return { enfocar: enfocar, acercar: acercar, encuadre: function () { encuadre(); if (!seleccion) metaDist = distEncuadre; despertar(); } };
+    return { enfocar: enfocar, acercar: acercar, global: vistaGlobal, pausar: function (si) { pausado = si; if (!si) despertar(); },
+             encuadre: function () { encuadre(); if (!seleccion) metaDist = distEncuadre; despertar(); } };
   }
 
   /* ===== Reparto ===== */
