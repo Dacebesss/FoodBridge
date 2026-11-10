@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{# FoodBridge en directo: lo que abre el público al escanear el QR de la pantalla grande. #}
+{% block title %}FoodBridge en directo{% endblock %}
+{% block body_class %}directo{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/directo.css' %}">{% endblock %}
+{% block menu %}<span class="espaciador"></span>{% endblock %}
+{% block cuerpo %}
+<main class="directo-movil">
+  <form id="form-directo" data-enviar="{% url 'directo:enviar' %}" novalidate>
+    {% csrf_token %}
+    <div class="dm-cabeza">
+      <span class="en-vivo"><i aria-hidden="true"></i>En directo</span>
+      <h1>Hoy eres un comercio de Villaviciosa</h1>
+      <p>¿Qué te ha sobrado? Elige un alimento y envíalo por el puente. Lo verás cruzar en la pantalla grande.</p>
+    </div>
+
+    <fieldset class="dm-productos">
+      <legend>1 · Elige el alimento</legend>
+      {% for p in productos %}
+        <label class="dm-producto">
+          <input type="radio" name="producto" value="{{ p.clave }}" data-kg="{{ p.kg }}"{% if forloop.first %} checked{% endif %}>
+          <span class="dm-icono" aria-hidden="true">{% include "directo/_icono.html" with clave=p.clave %}</span>
+          <span>{{ p.nombre }}</span>
+        </label>
+      {% endfor %}
+    </fieldset>
+
+    <div class="dm-cantidad">
+      <span class="dm-paso">2 · ¿Cuántas unidades?</span>
+      <div class="dm-contador" role="group" aria-label="Unidades">
+        <button type="button" id="dm-menos" aria-label="Quitar una">−</button>
+        <output id="dm-unidades" class="num" aria-live="polite">6</output>
+        <button type="button" id="dm-mas" aria-label="Añadir una">+</button>
+      </div>
+      <span class="dm-kg num" id="dm-kg">≈ 1,5 kg</span>
+    </div>
+
+    <button class="btn btn-menta btn-bloque dm-enviar" type="submit" id="dm-enviar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+      Enviar al puente
+    </button>
+    <p class="dm-estado" id="dm-estado" role="status"></p>
+  </form>
+
+  <section class="dm-hecho" id="dm-hecho" hidden aria-live="polite">
+    <div class="dm-check" aria-hidden="true">✓</div>
+    <h2>¡Tu furgoneta ya está cruzando!</h2>
+    <p class="dm-lote" id="dm-lote"></p>
+    <p>Mira la pantalla grande: cuando llegue a la entidad social, se sumará al contador de la sala.</p>
+    <button class="btn btn-linea btn-bloque" type="button" id="dm-otra">Enviar otra cosa</button>
+  </section>
+
+  <p class="dm-aviso">Simulación de la presentación de FoodBridge. No se registra como donación real.</p>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/directo-movil.js' %}" defer></script>{% endblock %}

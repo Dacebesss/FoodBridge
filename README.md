@@ -124,6 +124,21 @@ El escáner necesita una conexión segura (HTTPS) para usar la cámara. En el or
 
 ---
 
+## FoodBridge en directo (para la presentación)
+
+Una simulación para que el público participe con su móvil:
+
+1. En la pantalla grande abre la web con **`/#directo`** al final (por ejemplo `https://…pythonanywhere.com/#directo`). Sale el puente con un **código QR** y un contador.
+2. El público escanea el QR, elige un alimento y una cantidad y pulsa **«Enviar al puente»**.
+3. En la pantalla sale una furgoneta con ese lote; al llegar a la entidad se suma al contador de kilos de la sala.
+
+- Solo se eligen productos de una lista (sin texto libre) y cada móvil tiene un límite de envíos.
+- **No son donaciones reales**: van a una tabla aparte y no se mezclan con los lotes de la app.
+- Antes de cada presentación, pon el contador a cero: `python manage.py directo_reiniciar`.
+- Para ensayar sin público: **`/#directo-ensayo`** (envíos simulados, no necesita a nadie).
+
+---
+
 ## Pruebas automáticas
 
 ```bash
@@ -142,6 +157,7 @@ cuentas/               Usuarios: registro, inicio de sesión, roles y aprobació
   views.py             Qué página se muestra en cada dirección
   admin.py             Panel de administrador (aprobar / rechazar ONG)
   tests.py             Pruebas automáticas
+directo/               FoodBridge en directo: envíos del público durante la presentación
 lotes/                 Lotes donados
   models.py            Qué datos guardamos de cada lote
   operaciones.py       Las reglas: reservar, cancelar, entregar con PIN, cerrar franjas
@@ -152,7 +168,8 @@ templates/             Páginas HTML (base.html = cabecera y pie comunes; _logo.
 static/css/            Estilos: foodbridge.css (común) y portada.css (solo la portada)
 static/js/planeta.js   Planeta 3D interactivo de la portada
 static/js/escaner.js   Escáner de códigos de barras y búsqueda en Open Food Facts
-static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, MIT; ZXing 0.21.3, Apache 2.0)
+static/js/puente.js    Escena del puente 3D (furgonetas, capítulos y modo en directo)
+static/vendor/         Librerías externas guardadas en el proyecto (Three.js 0.160.0, MIT; ZXing 0.21.3, Apache 2.0; qrcode-generator 1.4.4, MIT)
 docs/capturas/         Capturas de pantalla
 ```
 

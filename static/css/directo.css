@@ -1,0 +1,40 @@
+/* FoodBridge en directo · página del móvil (oscura, como la pantalla grande). */
+body.directo { background: var(--noche); color: var(--blanco); min-height: 100vh; }
+body.directo .cabecera .espaciador { flex: 1 1 auto; }
+@media (max-width: 480px) {
+  body.directo .cabecera .envoltura { flex-wrap: nowrap; gap: 8px; }
+  body.directo .cabecera .marca { font-size: 16px; } body.directo .cabecera .marca svg { width: 30px; height: 30px; }
+  body.directo .cabecera .btn { padding: 0 12px; font-size: 13px; min-height: 36px; }
+  body.directo .cabecera .botones { flex-wrap: nowrap; gap: 6px; }
+}
+.directo-movil { max-width: 520px; margin: 0 auto; padding: 24px var(--gutter-der) 40px var(--gutter-izq); display: grid; gap: 20px; }
+.directo-movil form { display: grid; gap: 22px; }
+.en-vivo { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 99px; background: rgba(242,84,91,0.14); color: #FF9CA0; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.en-vivo i { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); animation: vivo 1.2s ease-in-out infinite; }
+@keyframes vivo { 50% { opacity: .25; } }
+.dm-cabeza h1 { margin: 12px 0 8px; font-size: clamp(26px, 7vw, 34px); line-height: 1.1; letter-spacing: -0.03em; }
+.dm-cabeza p { margin: 0; color: #BFDCCB; }
+.dm-productos { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dm-productos legend, .dm-paso { grid-column: 1 / -1; margin-bottom: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gris-claro); }
+.dm-producto { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s; }
+.dm-producto input { position: absolute; opacity: 0; pointer-events: none; }
+.dm-icono { color: var(--menta); display: grid; }
+.dm-producto:has(input:checked) { border-color: var(--menta); background: rgba(74,222,128,0.14); }
+.dm-producto:has(input:focus-visible) { outline: 2px solid var(--ambar); outline-offset: 2px; }
+.dm-cantidad { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px 16px; }
+.dm-contador { display: inline-flex; align-items: center; border: 1px solid rgba(255,255,255,0.15); border-radius: 99px; overflow: hidden; }
+.dm-contador button { width: 54px; height: 54px; border: 0; background: rgba(255,255,255,0.06); color: var(--blanco); font-size: 24px; cursor: pointer; }
+.dm-contador output { min-width: 54px; text-align: center; font-size: 22px; font-weight: 700; }
+.dm-kg { color: var(--menta); font-size: 18px; font-weight: 700; }
+.dm-enviar { min-height: 60px; font-size: 18px; }
+.dm-estado { margin: 0; min-height: 1.4em; color: #BFDCCB; text-align: center; }
+.dm-estado.error { color: #FF9CA0; }
+.dm-hecho { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 20px 0; }
+.dm-check { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--menta); color: var(--noche); font-size: 46px; font-weight: 800; animation: pop .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } }
+.dm-hecho h2 { margin: 8px 0 0; font-size: 26px; letter-spacing: -0.02em; }
+.dm-lote { margin: 0; font: 700 18px var(--f-dato); color: var(--menta); }
+.dm-hecho p { margin: 0; color: #BFDCCB; }
+.dm-hecho .btn { margin-top: 12px; }
+.dm-aviso { margin: 0; font-size: 12px; color: var(--gris-claro); text-align: center; }
+@media (prefers-reduced-motion: reduce) { .en-vivo i, .dm-check { animation: none; } }

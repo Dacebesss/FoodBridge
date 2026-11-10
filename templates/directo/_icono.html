@@ -1,0 +1,12 @@
+{# Iconos sencillos de cada alimento (líneas, 28 px). #}
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+{% if clave == "pan" %}<path d="M4 15c0-5 4-9 9-9 4 0 7 2 7 5 0 5-6 8-12 8-2.5 0-4-1.5-4-4z"/><path d="M9 10l2 3M13 8.5l2 3M16.5 8l1.5 2.5"/>
+{% elif clave == "bolleria" %}<path d="M3 15c2-6 5-9 9-9s7 3 9 9c-3 2-6 3-9 3s-6-1-9-3z"/><path d="M8 9l2 7M16 9l-2 7M12 6v11"/>
+{% elif clave == "fruta" %}<path d="M12 8c-4-2-8 1-8 6 0 4 3 7 5 7 1 0 2-.5 3-.5s2 .5 3 .5c2 0 5-3 5-7 0-5-4-8-8-6z"/><path d="M12 8c0-2 1-4 3-5"/>
+{% elif clave == "verdura" %}<path d="M15 9L5 19c-1 1-2.5-.5-1.5-1.5L13.5 7.5"/><path d="M13.5 7.5c1.5-1.5 4-1.5 5 1s-1.5 3.5-3.5 2"/><path d="M17 5l2-2M19 7.5l2.5-.5M15 4.5L15.5 2"/>
+{% elif clave == "yogures" %}<path d="M6 8h12l-1.5 12h-9z"/><path d="M5 5h14v3H5z"/>
+{% elif clave == "leche" %}<path d="M8 8l2-4h4l2 4v12H8z"/><path d="M8 8h8M10 13h4"/>
+{% elif clave == "platos" %}<circle cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="3.5"/><path d="M3 6v4M21 6v4"/>
+{% else %}<ellipse cx="12" cy="6" rx="6" ry="2"/><path d="M6 6v12c0 1.1 2.7 2 6 2s6-.9 6-2V6"/><path d="M6 11c0 1.1 2.7 2 6 2s6-.9 6-2"/>
+{% endif %}
+</svg>

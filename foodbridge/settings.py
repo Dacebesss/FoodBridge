@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     # Nuestras apps
     "cuentas",
     "lotes",
+    "directo",
 ]
 
 MIDDLEWARE = [

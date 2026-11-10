@@ -19,6 +19,7 @@ urlpatterns = [
     path("", inicio, name="inicio"),
     path("cuentas/", include("cuentas.urls")),
     path("lotes/", include("lotes.urls")),
+    path("directo/", include("directo.urls")),
     path("admin/", admin.site.urls),
 ]
 
