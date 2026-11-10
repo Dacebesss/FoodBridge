@@ -13,6 +13,7 @@ Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 - **FoodBridge en directo** (rama `puente`): en la presentación, el público escanea un QR, dona desde su
   móvil y en la pantalla grande cruza una furgoneta por cada envío; contador de kilos de la sala.
   Se abre con `/#directo`; para ensayar, `/#directo-ensayo`; contador a cero con `python manage.py directo_reiniciar`.
+- Rama `puente` unida con `main` (35 pruebas OK). **Falta aplicarlo en PythonAnywhere** (se hará el día siguiente).
 
 ## 2026-11-03
 - Diego instala Git y Obsidian; clona el proyecto en PyCharm (carpeta dentro de OneDrive) y lo abre como bóveda.

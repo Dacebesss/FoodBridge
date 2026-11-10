@@ -3,6 +3,17 @@
 Volver a [[Inicio]]. Lo de arriba es lo más urgente.
 
 ## Ahora
+> **Dónde nos quedamos (10/11, noche):** todos los cambios están en GitHub (`main`, commit `afeba6e`),
+> pero **NO se han aplicado todavía en PythonAnywhere**: en `/#directo` sigue saliendo la web antigua.
+> Mañana, en la consola Bash de PythonAnywhere:
+> 1. `cd ~/FoodBridge && git log --oneline -1` → debe salir `afeba6e`. Si no, `git pull` y revisar el error.
+> 2. `workon foodbridge` → `python manage.py migrate` → `python manage.py collectstatic --noinput`
+>    → `python manage.py directo_reiniciar`.
+> 3. Pestaña **Web** → **Reload**. En el iPhone, abrir en pestaña privada para evitar la copia guardada.
+> 4. Probar: fichas de los países, viaje al puente, las 3 furgonetas, y FoodBridge en directo
+>    (ordenador con `/#directo` + iPhone escaneando el QR).
+> 5. Después: explicar a Diego qué es un QR y preparar el guion de la presentación.
+
 - [ ] **Probar la portada nueva en la web** (Tierra → puente con furgonetas, ya en `main`).
       Incluye **FoodBridge en directo**: probarlo con varios móviles reales antes de la presentación.
 - [ ] Ensayo general de la presentación con FoodBridge en directo (proyector + móviles del equipo).
