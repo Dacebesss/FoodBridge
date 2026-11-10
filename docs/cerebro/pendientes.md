@@ -18,6 +18,10 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
 - [ ] Probar el escáner en un **Android** (en iPhone ya funciona).
 
 ## Después
+- [ ] **Hacer la aplicación de FoodBridge** (después de terminar la web). Opciones a decidir:
+      convertir la web en una app instalable desde el navegador (PWA, lo más rápido: icono en la pantalla
+      de inicio, pantalla completa) o hacer una app nativa para iPhone y Android (más trabajo). Al principio
+      del proyecto se descartó la app nativa por tiempo; Diego quiere retomarlo cuando la web esté lista.
 - [ ] **Cambiar el nombre de la web** para que no salga «dacebesss» (p. ej. cuenta nueva `foodbridge` en PythonAnywhere).
 - [ ] **Redefinir los roles** del equipo y de la app.
 - [ ] **Preparar la visita a un supermercado**: guion de demostración y repaso de que todo funciona.
