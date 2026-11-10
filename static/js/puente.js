@@ -59,6 +59,7 @@
     paneles[id].scrollTop = 0;
     paneles[id].querySelector(".cerrar-capitulo").focus({ preventScroll: true });
     if (tres) tres.irA(id);
+    document.dispatchEvent(new CustomEvent("foodbridge:capitulo", { detail: id }));
   }
   function cerrarCapitulo() {
     if (!abierto) return;
@@ -151,10 +152,11 @@
     [-1, 1].forEach(function (lado) { caja(5, 4, ANCHO * 2 + 3, lado * (ANCLA_X + 1.5), -1.6, 0); });
     var bordeComercio = new T.LineBasicMaterial({ color: AMBAR, transparent: true, opacity: 0.85 });
     var bordeEntidad = new T.LineBasicMaterial({ color: TURQUESA, transparent: true, opacity: 0.85 });
-    caja(9, 6, 9, -(ANCLA_X + 16), 2.5, -7, bordeComercio);
-    caja(9.6, 0.5, 3, -(ANCLA_X + 16), 4.2, -1.4, bordeComercio);
-    caja(8, 8, 8, ANCLA_X + 16, 3.5, -7, bordeEntidad);
-    caja(5, 0.6, 5, ANCLA_X + 16, 7.9, -7, bordeEntidad);
+    var ORILLA = ANCLA_X + 13;
+    caja(9, 6, 8, -ORILLA, 2.5, -7.5, bordeComercio);
+    caja(9.6, 0.5, 3, -ORILLA, 4.2, -2.2, bordeComercio);
+    caja(8, 8, 8, ORILLA, 3.5, -7.5, bordeEntidad);
+    caja(5, 0.6, 5, ORILLA, 7.9, -7.5, bordeEntidad);
     // Calzadas que unen las orillas con el puente
     caja(18, 0.5, ANCHO * 2 + 1.2, -(ANCLA_X + 9), -0.3, 0);
     caja(18, 0.5, ANCHO * 2 + 1.2, ANCLA_X + 9, -0.3, 0);
@@ -262,13 +264,59 @@
       f.avance = f.fase * RECORRIDO;
     });
 
+    /* ---------- "El problema": comida que cae al agua desde el lado del comercio ---------- */
+    var NC = 18, residuo = 0;
+    var caidas = new T.InstancedMesh(new T.BoxGeometry(0.7, 0.5, 0.6), new T.MeshBasicMaterial({ color: 0xF2545B }), NC);
+    escena.add(caidas);
+    var mC = new T.Matrix4(), qC = new T.Quaternion(), pC = new T.Vector3(), sC = new T.Vector3(), ejeC = new T.Vector3(1, 0.4, 0.2).normalize();
+    function azar(n) { var v = Math.sin(n * 127.1) * 43758.5453; return v - Math.floor(v); }
+    function moverCaidas() {
+      for (var i = 0; i < NC; i++) {
+        var u = (tiempo * 0.42 + i / NC) % 1, vuelta = Math.floor(tiempo * 0.42 + i / NC);
+        var x = -50 + azar(i * 7 + vuelta) * 24;
+        pC.set(x + u * 1.5, 0.4 - 9.6 * u * u, 2.7 + u * 3.5);
+        qC.setFromAxisAngle(ejeC, u * 5 + i);
+        var e = residuo * (u < 0.92 ? 1 : (1 - u) / 0.08);
+        sC.set(e, e, e).addScalar(0.0001);
+        mC.compose(pC, qC, sC);
+        caidas.setMatrixAt(i, mC);
+      }
+      caidas.instanceMatrix.needsUpdate = true;
+    }
+
+    /* ---------- "Cómo funciona": la furgoneta representa cada paso ---------- */
+    var PASOS = {
+      comercio: [
+        { x: -58, t: "Comercio dado de alta ✓" },
+        { x: -56, t: "Lote publicado · 12 barras de pan" },
+        { x: -2, t: "Reservado por el Comedor Social San José" },
+        { x: 56, t: "PIN 4821 · Entregado ✓", pin: true }
+      ],
+      entidad: [
+        { x: 56, t: "Solicitud de alta enviada" },
+        { x: 56, t: "Cuenta en revisión…" },
+        { x: -54, t: "Reservado · PIN 4821", pin: true },
+        { x: 30, t: "Recogida de 18:00 a 20:00" }
+      ],
+      admin: [
+        { x: -24, t: "1 entidad pendiente de revisar" },
+        { x: 0, t: "Entidad aprobada ✓" },
+        { x: 24, t: "2 recogidas no realizadas (ejemplo)" }
+      ]
+    };
+    var pasoActual = { rol: "comercio", paso: 0 };
+    document.addEventListener("foodbridge:paso", function (e) { pasoActual = e.detail; });
+    var chip = document.createElement("span");
+    chip.className = "chip-furgo fuera"; chip.setAttribute("aria-hidden", "true");
+    escenaPuente.appendChild(chip);
+
     /* ---------- Cámara ---------- */
     var VISTAS = {
       llegada: [[0, 52, 130], [0, 4, 0]],
-      general: [[0, 12, 64], [0, 4, 0]],
-      problema: [[-58, 7, 24], [-30, 3, -4]],
-      objetivo: [[-16, 30, 60], [10, 3, 0]],
-      como: [[58, 8, 24], [30, 3, -4]]
+      general: [[0, 17, 96], [0, 3, 0]],
+      problema: [[-62, 8, 26], [-38, 2, 0]],
+      objetivo: [[0, 28, 74], [0, 5, 0]],
+      como: [[52, 9, 28], [38, 2, 0]]
     };
     var camPos = new T.Vector3().fromArray(VISTAS.llegada[0]), camMira = new T.Vector3().fromArray(VISTAS.llegada[1]);
     var metaPos = new T.Vector3(), metaMira = new T.Vector3();
@@ -277,8 +325,6 @@
     function irA(id) {
       vista = id || "general";
       metaPos.fromArray(VISTAS[vista][0]); metaMira.fromArray(VISTAS[vista][1]);
-      // En el móvil el capítulo sale abajo: bajamos la mirada para que el puente quede en la mitad de arriba.
-      if (id && esMovil()) metaMira.y -= 10;
     }
     function medir() {
       var w = lienzo.clientWidth, h = lienzo.clientHeight;
@@ -320,14 +366,14 @@
       if (dentro) el.style.transform = "translate(" + ((proy.x + 1) / 2 * lienzo.clientWidth).toFixed(1) + "px," + ((1 - proy.y) / 2 * lienzo.clientHeight).toFixed(1) + "px) translate(-50%,-100%)";
     }
     var etqComercio = document.getElementById("etq-comercio"), etqEntidad = document.getElementById("etq-entidad");
-    var pComercio = new T.Vector3(-(ANCLA_X + 16), 7, -7), pEntidad = new T.Vector3(ANCLA_X + 16, 9, -7);
+    var pComercio = new T.Vector3(-ORILLA, 7.5, -7.5), pEntidad = new T.Vector3(ORILLA, 9.5, -7.5);
 
     /* ---------- Bucle de dibujo ---------- */
-    var activo = false, reloj = new T.Clock(), tiempo = 0, tmp = new T.Vector3();
+    var activo = false, reloj = new T.Clock(), tiempo = 0, tmp = new T.Vector3(), brillo = 0;
     function cuadro() {
       if (!activo) return;
       requestAnimationFrame(cuadro);
-      var dt = Math.min(reloj.getDelta(), 0.05);
+      var dt = Math.min(reloj.getDelta(), 0.12); // aunque el móvil vaya lento, la animación no se queda atrás
       if (!reducido) tiempo += dt;
       var k = reducido ? 1 : 1 - Math.exp(-dt * 1.8);
       camPos.lerp(metaPos, k); camMira.lerp(metaMira, k);
@@ -336,22 +382,61 @@
       camara.position.copy(camPos); camara.position.x += vaiven;
       if (lejos !== 1) camara.position.sub(camMira).multiplyScalar(lejos).add(camMira);
       camara.lookAt(camMira);
+      encuadrarHueco(k);
       mAgua.uniforms.tiempo.value = tiempo;
 
+      var demo = abierto === "como";
       flota.forEach(function (f) {
         // La furgoneta del capítulo abierto (o la que estás a punto de tocar) se para.
         var parada = f.id && (f.id === abierto || (f.boton && f.boton.matches(":hover, :focus-visible")));
         if (!reducido && !parada) f.avance = (f.avance + dt * VELOCIDAD) % RECORRIDO;
         var x = -RECORRIDO / 2 + f.avance;
+        if (f.id === "como" && demo) {
+          // Va al sitio del paso que estás leyendo (comercio, puente o entidad).
+          var meta = (PASOS[pasoActual.rol] || PASOS.comercio)[pasoActual.paso] || PASOS.comercio[0];
+          f.xDemo = f.xDemo === undefined ? x : f.xDemo + (meta.x - f.xDemo) * (reducido ? 1 : 1 - Math.exp(-dt * 1.3));
+          x = f.xDemo;
+          f.avance = x + RECORRIDO / 2;
+          metaPos.set(x + 14, 8, 26); metaMira.set(x, 2.5, 0);
+          chip.textContent = meta.t;
+          chip.classList.toggle("pin", !!meta.pin);
+          tmp.set(x, 0, f.carril * 1.15); colocar(chip, tmp, 4.2);
+        } else if (f.id === "como") { f.xDemo = undefined; }
         f.g.position.set(x, 0, f.carril * 1.15);
         // Aparecen al salir del comercio y desaparecen al llegar a la entidad.
         var s = Math.min(1, Math.max(0, Math.min(x + 64, 64 - x) / 4));
-        f.g.scale.setScalar(Math.max(0.0001, s));
-        if (f.boton) { tmp.copy(f.g.position); colocar(f.boton, tmp, 2.5, s < 0.6); }
+        f.g.scale.setScalar(Math.max(0.0001, s * 1.4));
+        if (f.boton) { tmp.copy(f.g.position); colocar(f.boton, tmp, 3.5, s < 0.6 || (demo && f.id === "como")); }
       });
+      if (!demo) chip.classList.add("fuera");
+      // "El problema": cae comida al agua. "Nuestro objetivo": el puente se ilumina.
+      residuo += ((abierto === "problema" ? 1 : 0) - residuo) * Math.min(1, dt * 2);
+      if (residuo > 0.01 && !reducido) moverCaidas(); else if (residuo <= 0.01) caidas.visible = false;
+      caidas.visible = residuo > 0.01;
+      brillo += ((abierto === "objetivo" ? 1 : 0) - brillo) * Math.min(1, dt * 2);
+      var pulso = 0.5 + 0.5 * Math.sin(tiempo * 2.4);
+      lucesTablero.opacity = 0.45 + brillo * 0.55 * pulso;
+      lineasPuente.opacity = 0.6 + brillo * 0.35;
+      lineasTenues.opacity = 0.32 + brillo * (0.25 + 0.2 * pulso);
       colocar(etqComercio, pComercio, 0);
       colocar(etqEntidad, pEntidad, 0);
       renderer.render(escena, camara);
+    }
+
+    // Con un capítulo abierto, el centro de la imagen pasa al hueco libre:
+    // a la derecha del panel en el ordenador y encima del panel en el móvil.
+    var offX = 0, offY = 0;
+    function encuadrarHueco(k) {
+      var w = lienzo.clientWidth, h = lienzo.clientHeight, ox = 0, oy = 0;
+      var panel = abierto && paneles[abierto];
+      if (panel && !panel.hidden) {
+        var r = panel.getBoundingClientRect(), c = lienzo.getBoundingClientRect();
+        if (esMovil()) oy = (r.top - c.top) / 2 - h / 2;
+        else ox = ((r.right - c.left) + w) / 2 - w / 2;
+      }
+      offX += (ox - offX) * k; offY += (oy - offY) * k;
+      camara.setViewOffset(w, h, -offX, -offY, w, h);
+      camara.updateProjectionMatrix();
     }
 
     irA(null);

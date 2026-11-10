@@ -50,9 +50,14 @@
       <h3>¿Dónde se tira?</h3>
       <p class="sub">Millones de toneladas en 2022. Toca cada parte.</p>
       <div class="tira" role="group" aria-label="Reparto del desperdicio por sector">
-        <button class="tramo h" type="button" data-tramo="h" aria-pressed="true">Hogares · 631</button>
-        <button class="tramo r" type="button" data-tramo="r" aria-pressed="false">Restauración · 290</button>
-        <button class="tramo c" type="button" data-tramo="c" aria-pressed="false">Comercio · 131</button>
+        <button class="tramo h" type="button" data-tramo="h" aria-pressed="true" aria-label="Hogares: 631 millones de toneladas"></button>
+        <button class="tramo r" type="button" data-tramo="r" aria-pressed="false" aria-label="Restauración: 290 millones de toneladas"></button>
+        <button class="tramo c" type="button" data-tramo="c" aria-pressed="false" aria-label="Comercio: 131 millones de toneladas"></button>
+      </div>
+      <div class="leyenda-tramos" role="group" aria-label="Elegir sector">
+        <button class="tramo-leyenda h" type="button" data-tramo="h" aria-pressed="true"><span class="punto" aria-hidden="true"></span>Hogares<b class="num">631 Mt · 60 %</b></button>
+        <button class="tramo-leyenda r" type="button" data-tramo="r" aria-pressed="false"><span class="punto" aria-hidden="true"></span>Restauración<b class="num">290 Mt · 28 %</b></button>
+        <button class="tramo-leyenda c" type="button" data-tramo="c" aria-pressed="false"><span class="punto" aria-hidden="true"></span>Comercio<b class="num">131 Mt · 12 %</b></button>
       </div>
       <p class="detalle-tramo" id="detalle-tramo"></p>
     </section>
@@ -61,15 +66,18 @@
       <button class="cerrar-capitulo" type="button" aria-label="Cerrar">×</button>
       <p class="antetitulo" style="color: var(--menta)">Nuestro objetivo</p>
       <h2 id="titulo-objetivo">Del problema global a la calle de al lado</h2>
-      <p class="entradilla">Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
+      <p class="entradilla">Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Cambia de escala para verlo.</p>
       <div class="escala">
-      <div class="anillos" role="group" aria-label="Escalas">
-        <button class="anillo a1" type="button" data-escala="es" aria-pressed="false">España</button>
-        <button class="anillo a2" type="button" data-escala="md" aria-pressed="false">Comunidad de Madrid</button>
-        <button class="anillo a3" type="button" data-escala="vo" aria-pressed="true">Villaviciosa<br>de Odón</button>
+        <div class="migas-escala" role="tablist" aria-label="Escala">
+          <button class="miga-escala" role="tab" type="button" data-escala="es" aria-selected="false">España</button>
+          <span aria-hidden="true">›</span>
+          <button class="miga-escala" role="tab" type="button" data-escala="md" aria-selected="false">Comunidad de Madrid</button>
+          <span aria-hidden="true">›</span>
+          <button class="miga-escala" role="tab" type="button" data-escala="vo" aria-selected="true">Villaviciosa de Odón</button>
+        </div>
+        <canvas class="mapa-escala" id="mapa-escala" aria-hidden="true"></canvas>
+        <div class="ficha-escala" id="ficha-escala" role="tabpanel" aria-live="polite"></div>
       </div>
-      <div class="ficha-escala" id="ficha-escala" aria-live="polite"></div>
-    </div>
       <h3 class="subtitulo-ley">La Ley 1/2025 fija el orden</h3>
       <p class="entradilla">La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
       <ol class="jerarquia">
