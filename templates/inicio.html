@@ -4,7 +4,8 @@
 {# El dibujo del planeta y la interactividad están en static/js/planeta.js. #}
 {% block title %}FoodBridge · Que ningún alimento apto se tire{% endblock %}
 {% block body_class %}portada{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/portada.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/portada.css' %}">
+<link rel="stylesheet" href="{% static 'css/puente.css' %}">{% endblock %}
 {% block menu %}
   <nav class="menu" aria-label="Secciones">
     <a href="#cifras">El problema</a>
@@ -34,19 +35,43 @@
   </div>
 </section>
 
-<section class="seccion" id="cifras">
-  <div class="envoltura">
-    <div class="cabeza-seccion">
-      <p class="antetitulo" style="color: var(--coral)">El problema</p>
-      <h2>Se tira comida en casa, en restaurantes y en tiendas</h2>
-      <p>Datos de 2022 de Naciones Unidas (UNEP, Food Waste Index Report 2024).</p>
+{# Historia: un puente 3D fijo de fondo (static/js/puente.js) que la cámara recorre mientras bajas. #}
+<div class="historia" id="historia">
+  <div class="historia-fondo" aria-hidden="true">
+    <canvas id="puente"></canvas>
+    <span class="etq-puente comercio" id="etq-comercio">Comercio</span>
+    <span class="etq-puente entidad" id="etq-entidad">Entidad social</span>
+  </div>
+
+  <div class="escena centro">
+    <div class="envoltura">
+      <div class="intro-puente">
+        <p class="antetitulo">FoodBridge</p>
+        <h2>Un puente entre la comida que sobra y quien la necesita</h2>
+        <p>Baja para cruzarlo.</p>
+      </div>
     </div>
-    <div class="cifras">
+  </div>
+
+  <section class="capitulo" id="cifras" aria-labelledby="titulo-problema">
+    <div class="escena izq">
+      <div class="envoltura">
+        <div class="panel-historia">
+          <p class="antetitulo" style="color: var(--coral)">El problema</p>
+          <h2 id="titulo-problema">Se tira comida en casa, en restaurantes y en tiendas</h2>
+          <p class="entradilla">Datos de 2022 de Naciones Unidas (UNEP, Food Waste Index Report 2024).</p>
+          <div class="cifras">
       <div class="cifra"><span class="valor" style="color: var(--coral)">132&nbsp;kg</span><p>de comida tirada por persona y año en el mundo.</p></div>
-      <div class="cifra"><span class="valor" style="color: #C27803">19&nbsp;%</span><p>de los alimentos disponibles para los consumidores acaba en la basura.</p></div>
-      <div class="cifra"><span class="valor" style="color: var(--turquesa)">8–10&nbsp;%</span><p>de las emisiones mundiales de gases de efecto invernadero.</p></div>
+      <div class="cifra"><span class="valor" style="color: var(--ambar)">19&nbsp;%</span><p>de los alimentos disponibles para los consumidores acaba en la basura.</p></div>
+      <div class="cifra"><span class="valor" style="color: #2DD4BF">8–10&nbsp;%</span><p>de las emisiones mundiales de gases de efecto invernadero.</p></div>
     </div>
-    <div class="reparto">
+        </div>
+      </div>
+    </div>
+    <div class="escena der">
+      <div class="envoltura">
+        <div class="panel-historia">
+          <div class="reparto">
       <h3>¿Dónde se tira?</h3>
       <p class="sub">Millones de toneladas en 2022. Toca cada parte.</p>
       <div class="tira" role="group" aria-label="Reparto del desperdicio por sector">
@@ -55,18 +80,19 @@
         <button class="tramo c" type="button" data-tramo="c" aria-pressed="false">Comercio · 131</button>
       </div>
       <p class="detalle-tramo" id="detalle-tramo"></p>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="seccion suave" id="objetivo">
-  <div class="envoltura">
-    <div class="cabeza-seccion">
-      <p class="antetitulo" style="color: var(--verde)">Nuestro objetivo</p>
-      <h2>Del problema global a la calle de al lado</h2>
-      <p>Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
-    </div>
-    <div class="escala">
+  <section class="capitulo" id="objetivo" aria-labelledby="titulo-objetivo">
+    <div class="escena izq">
+      <div class="envoltura">
+        <div class="panel-historia medio">
+          <p class="antetitulo" style="color: var(--menta)">Nuestro objetivo</p>
+          <h2 id="titulo-objetivo">Del problema global a la calle de al lado</h2>
+          <p class="entradilla">Empezamos en Villaviciosa de Odón, con un modelo pensado para crecer. Toca cada círculo.</p>
+          <div class="escala">
       <div class="anillos" role="group" aria-label="Escalas">
         <button class="anillo a1" type="button" data-escala="es" aria-pressed="false">España</button>
         <button class="anillo a2" type="button" data-escala="md" aria-pressed="false">Comunidad de Madrid</button>
@@ -74,31 +100,35 @@
       </div>
       <div class="ficha-escala" id="ficha-escala" aria-live="polite"></div>
     </div>
-
-    <div class="ley">
-      <div class="cabeza-seccion" style="margin-bottom: 24px;">
-        <h2 style="font-size: clamp(22px, 2.4vw, 28px);">La Ley 1/2025 fija el orden</h2>
-        <p>La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
+        </div>
       </div>
-      <ol class="jerarquia">
+    </div>
+    <div class="escena der">
+      <div class="envoltura">
+        <div class="panel-historia">
+          <p class="antetitulo" style="color: var(--menta)">La Ley 1/2025 fija el orden</p>
+          <h2>Primero prevenir, después donar</h2>
+          <p class="entradilla">La ley de prevención de las pérdidas y el desperdicio alimentario (BOE, 2 de abril de 2025) pide seguir estas prioridades. FoodBridge facilita la segunda.</p>
+          <ol class="jerarquia">
         <li class="peldano"><span class="n">1</span><h3>Prevenir</h3><p>Que no sobre.</p></li>
         <li class="peldano activo"><span class="n">2</span><h3>Donar</h3><p>A entidades sociales, para consumo humano.</p></li>
         <li class="peldano"><span class="n">3</span><h3>Transformar</h3><p>En otros alimentos.</p></li>
         <li class="peldano"><span class="n">4</span><h3>Animales</h3><p>Como alimento animal.</p></li>
         <li class="peldano"><span class="n">5</span><h3>Compost o energía</h3><p>Último recurso.</p></li>
       </ol>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="seccion" id="como">
-  <div class="envoltura">
-    <div class="cabeza-seccion">
-      <p class="antetitulo" style="color: var(--turquesa)">Cómo funciona</p>
-      <h2>Qué hace cada uno, paso a paso</h2>
-      <p>Elige tu papel y recorre los pasos.</p>
-    </div>
-    <div class="pestanas" role="tablist" aria-label="Papel">
+  <section class="capitulo" id="como" aria-labelledby="titulo-como">
+    <div class="escena centro">
+      <div class="envoltura">
+        <div class="panel-historia ancho">
+          <p class="antetitulo" style="color: #2DD4BF">Cómo funciona</p>
+          <h2 id="titulo-como">Qué hace cada uno, paso a paso</h2>
+          <p class="entradilla">Elige tu papel y recorre los pasos.</p>
+          <div class="pestanas" role="tablist" aria-label="Papel">
       <button class="pestana" role="tab" id="tab-comercio" aria-selected="true" aria-controls="flujo" data-rol="comercio">Comercio</button>
       <button class="pestana" role="tab" id="tab-entidad" aria-selected="false" aria-controls="flujo" data-rol="entidad">Entidad social</button>
       <button class="pestana" role="tab" id="tab-admin" aria-selected="false" aria-controls="flujo" data-rol="admin">Administración</button>
@@ -106,9 +136,17 @@
     <div class="flujo" id="flujo" role="tabpanel" aria-labelledby="tab-comercio">
       <ol class="pasos" id="pasos"></ol>
       <div class="movil" aria-hidden="true"><div class="pantalla" id="pantalla"></div></div>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <div class="recorrido" id="recorrido" aria-hidden="true">
+    <span>Comercio</span>
+    <span class="via"><i class="viajero" id="viajero"></i></span>
+    <span>Entidad social</span>
   </div>
-</section>
+</div>
 
 <section class="seccion suave" id="equipo" style="padding-block: 72px;">
   <div class="envoltura">
@@ -149,4 +187,5 @@
 {% block scripts %}
 <script src="{% static 'vendor/three.min.js' %}"></script>
 <script src="{% static 'js/planeta.js' %}"></script>
+<script src="{% static 'js/puente.js' %}"></script>
 {% endblock %}
