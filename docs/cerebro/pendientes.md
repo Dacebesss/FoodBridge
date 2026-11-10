@@ -3,6 +3,8 @@
 Volver a [[Inicio]]. Lo de arriba es lo más urgente.
 
 ## Ahora
+- [ ] **Visto bueno a la portada nueva** (Tierra → puente con furgonetas). Está en la rama `puente`;
+      cuando Diego diga que sí, se fusiona con `main` y se sube a la web.
 - [ ] **Probar lo que llevamos en la web**, por bloques (en el iPhone de Diego):
   1. El comercio publica un producto con el escáner.
   2. La entidad reserva y recibe el PIN.

@@ -2,6 +2,14 @@
 
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
+## 2026-11-10
+- Nueva portada (rama **`puente`**, pendiente de visto bueno): la Tierra centrada; al tocar Villaviciosa
+  de Odón, zoom y viaje a un **puente 3D** con furgonetas de FoodBridge. Tres furgonetas abren
+  El problema, Nuestro objetivo y Cómo funciona.
+- Nuestro objetivo con **mapas reales** (sustituyen a los círculos). Cómo funciona se representa en 3D
+  (la furgoneta hace cada paso). Revisión de detalles (texto invisible en el móvil simulado, barra cortada).
+- Maqueta para enseñar: https://claude.ai/artifact/4iTjvEsTuv5HizLTVcHDYB
+
 ## 2026-11-03
 - Diego instala Git y Obsidian; clona el proyecto en PyCharm (carpeta dentro de OneDrive) y lo abre como bóveda.
 - Se crea este «cerebro»: `CLAUDE.md` + `docs/cerebro/`.
