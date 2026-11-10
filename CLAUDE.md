@@ -28,11 +28,11 @@ Pensada para poder crecer a otros municipios (cada cuenta guarda su municipio).
 - Al terminar una sesión: **actualizar `docs/cerebro/diario.md` y `docs/cerebro/pendientes.md`**.
 
 ## Técnica (resumen)
-- Django 5.2.18 LTS + SQLite + HTML/CSS propios. Pillow para fotos. Apps: `cuentas` (usuarios y roles) y `lotes`.
+- Django 5.2.18 LTS + SQLite + HTML/CSS propios. Pillow para fotos. Apps: `cuentas` (usuarios y roles), `lotes` y `directo` (simulación para la presentación).
 - Login con email. Roles: comercio (aprobado al registrarse), ONG/entidad (pendiente hasta que la apruebe un admin;
   nº de registro o CIF obligatorio) y admin.
 - Reglas de los lotes en `lotes/operaciones.py`. Escáner en `static/js/escaner.js` (ZXing 0.21.3 o lector nativo
-  + Open Food Facts). Planeta 3D de la portada en `static/js/planeta.js` (Three.js 0.160.0). Librerías en `static/vendor/`.
+  + Open Food Facts). Portada en dos escenas: planeta 3D (`static/js/planeta.js`, Three.js 0.160.0) y puente 3D con furgonetas (`static/js/puente.js`); `/#directo` = modo en directo. Librerías en `static/vendor/`.
 - Datos de demo: `python manage.py datos_demo` (cuentas inventadas, contraseña `foodbridge2026`;
   `--lotes-nuevos` recrea los lotes para hoy). Los comercios de la demo son INVENTADOS a propósito.
 
