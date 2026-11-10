@@ -9,6 +9,10 @@ Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 - Nuestro objetivo con **mapas reales** (sustituyen a los círculos). Cómo funciona se representa en 3D
   (la furgoneta hace cada paso). Revisión de detalles (texto invisible en el móvil simulado, barra cortada).
 - Maqueta para enseñar: https://claude.ai/artifact/4iTjvEsTuv5HizLTVcHDYB
+- Fichas de los países en la Tierra (cifra, comparación y fuente) y "modo escaparate".
+- **FoodBridge en directo** (rama `puente`): en la presentación, el público escanea un QR, dona desde su
+  móvil y en la pantalla grande cruza una furgoneta por cada envío; contador de kilos de la sala.
+  Se abre con `/#directo`; para ensayar, `/#directo-ensayo`; contador a cero con `python manage.py directo_reiniciar`.
 
 ## 2026-11-03
 - Diego instala Git y Obsidian; clona el proyecto en PyCharm (carpeta dentro de OneDrive) y lo abre como bóveda.

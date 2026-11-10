@@ -4,7 +4,9 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
 
 ## Ahora
 - [ ] **Visto bueno a la portada nueva** (Tierra → puente con furgonetas). Está en la rama `puente`;
-      cuando Diego diga que sí, se fusiona con `main` y se sube a la web.
+      cuando Diego diga que sí, se fusiona con `main` y se sube a la web. Incluye **FoodBridge en directo**:
+      hay que probarlo con varios móviles reales en PythonAnywhere antes de la presentación.
+- [ ] Ensayo general de la presentación con FoodBridge en directo (proyector + móviles del equipo).
 - [ ] **Probar lo que llevamos en la web**, por bloques (en el iPhone de Diego):
   1. El comercio publica un producto con el escáner.
   2. La entidad reserva y recibe el PIN.
