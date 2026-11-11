@@ -2,8 +2,9 @@
 
 Volver a [[Inicio]].
 
-- Web: https://dacebesss.eu.pythonanywhere.com · cuenta de PythonAnywhere (UE) del usuario `Dacebesss`.
-- Carpeta del proyecto en el servidor: `/home/Dacebesss/FoodBridge` · entorno: `foodbridge` (Python 3.12).
+- Web: **https://foodbridgeuem.eu.pythonanywhere.com** · cuenta de PythonAnywhere (UE) del usuario `FoodBridgeUEM`
+  (con el Gmail del equipo). Carpeta: `/home/FoodBridgeUEM/FoodBridge` · entorno: `foodbridge` (Python 3.12).
+- Web antigua, de reserva: https://dacebesss.eu.pythonanywhere.com (usuario `Dacebesss`, carpeta `/home/Dacebesss/FoodBridge`).
 - La clave secreta y la contraseña del admin están SOLO en PythonAnywhere (archivo WSGI). Nunca aquí.
 
 ## Actualizar la web cuando hay cambios en GitHub

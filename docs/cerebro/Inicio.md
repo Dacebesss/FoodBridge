@@ -14,8 +14,8 @@ Notas del proyecto para el equipo y para Claude. Se editan con **Obsidian** y se
 - [[publicar-web]] — cómo actualizar la web en PythonAnywhere
 
 ## Enlaces rápidos
-- Web: https://dacebesss.eu.pythonanywhere.com
-- Panel de administración: https://dacebesss.eu.pythonanywhere.com/admin
+- Web: https://foodbridgeuem.eu.pythonanywhere.com
+- Panel de administración: https://foodbridgeuem.eu.pythonanywhere.com/admin
 - Código: https://github.com/Dacebesss/FoodBridge
 - Contactos reales del municipio: [[contactos_villaviciosa]]
 - Instrucciones que lee Claude al empezar: `CLAUDE.md` (en la raíz del proyecto)

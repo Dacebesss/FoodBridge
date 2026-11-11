@@ -13,7 +13,8 @@ Pensada para poder crecer a otros municipios (cada cuenta guarda su municipio).
 - Equipo de 7 alumnos de 1.º de Ingeniería Informática (UEM, Madrid). Asignatura: Eficacia Personal y Profesional
   (valora equipo, planificación y presentación más que el código). **Presentación: 14/12/2026.**
 - Habla normalmente **Diego Acebes**, jefe de proyecto. Nivel de programación muy básico. Usa iPhone, Windows, PyCharm y Obsidian.
-- Web publicada: https://dacebesss.eu.pythonanywhere.com (PythonAnywhere, servidores de la UE).
+- Web publicada: **https://foodbridgeuem.eu.pythonanywhere.com** (PythonAnywhere UE, usuario `FoodBridgeUEM`).
+  La antigua https://dacebesss.eu.pythonanywhere.com sigue existiendo de reserva.
 
 ## Cómo trabajar con Diego
 - **Español, claro y didáctico**, paso a paso y sin jerga. Un paso cada vez cuando se lía.

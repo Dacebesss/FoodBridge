@@ -143,9 +143,14 @@
     escenaPuente.classList.add("en-directo");
     var url = location.origin + "/directo/";
     document.getElementById("pd-url").textContent = location.host + "/directo";
-    if (window.qrcode) {
+    var cajaQr = document.getElementById("pd-qr");
+    try {
       var qr = window.qrcode(0, "M"); qr.addData(url); qr.make();
-      document.getElementById("pd-qr").innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+      cajaQr.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    } catch (e) {
+      // Si no se puede dibujar el QR, al menos se ve la dirección para escribirla.
+      cajaQr.classList.add("sin-qr");
+      cajaQr.textContent = location.host + "/directo";
     }
     if (tres) { tres.alLlegar = llegada; tres.irA(null); }
     if (ensayo) simular(); else sondear();

@@ -3,6 +3,8 @@
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
 ## 2026-11-11
+- Web nueva con el nombre del equipo: **https://foodbridgeuem.eu.pythonanywhere.com** (Gmail y cuenta de PythonAnywhere del equipo).
+- El QR salía como un cuadrado blanco: se le da tamaño fijo (fallo típico de Safari) y, si no se puede dibujar, se ve la dirección.
 - Cambios aplicados en PythonAnywhere (`git pull` → `migrate` → `collectstatic` → Reload).
 - Diego lo prueba en el iPhone: fichas de países, viaje al puente y **FoodBridge en directo funcionando**
   (donación desde el móvil escaneando el QR → furgoneta en la pantalla del ordenador).
