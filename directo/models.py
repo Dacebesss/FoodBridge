@@ -6,6 +6,8 @@ En la pantalla grande sale una furgoneta con ese lote. NO son donaciones reales:
 no se mezclan con los lotes de la app.
 """
 
+import re
+
 from django.db import models
 
 # clave: (nombre en el botón, cómo se dice en plural, kg por unidad)
@@ -21,7 +23,26 @@ PRODUCTOS = {
 }
 
 
+# Palabras que no queremos ver proyectadas en la pantalla grande (lista corta, a propósito).
+PALABRAS_VETADAS = (
+    "puta", "puto", "mierda", "polla", "coño", "cabron", "cabrón", "gilipollas", "joder", "follar",
+    "maricon", "maricón", "zorra", "subnormal", "retrasado", "nazi", "hitler", "pene", "culo",
+)
+
+
+def limpiar_comercio(texto):
+    """Devuelve el nombre del comercio listo para la pantalla, o "" si no vale."""
+    nombre = " ".join(str(texto or "").split())[:24]
+    if len(nombre) < 2:
+        return ""
+    palabras = re.findall(r"\w+", nombre.lower())
+    if any(p in PALABRAS_VETADAS for p in palabras):
+        return ""
+    return nombre
+
+
 class Envio(models.Model):
+    comercio = models.CharField("comercio", max_length=24, default="")
     producto = models.CharField("producto", max_length=20, choices=[(k, v[0]) for k, v in PRODUCTOS.items()])
     unidades = models.PositiveSmallIntegerField("unidades")
     kg = models.DecimalField("kg", max_digits=6, decimal_places=2)

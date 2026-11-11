@@ -182,11 +182,12 @@
   }
   // Ensayo sin servidor: envíos inventados cada pocos segundos (para probar la pantalla).
   var EJEMPLOS = [["pan", "barras de pan", 0.25], ["yogures", "yogures", 0.125], ["fruta", "kg de fruta", 1], ["leche", "litros de leche", 1], ["bolleria", "piezas de bollería", 0.08], ["platos", "platos preparados", 0.4], ["verdura", "kg de verdura", 1], ["conservas", "latas de conserva", 0.4]];
+  var COMERCIOS_ENSAYO = ["Panadería Lola", "Frutas El Huerto", "Pastelería Dulce Odón", "Lácteos La Vega", "Bar El Puente", "Mercado del Pinar"];
   var numeroEnsayo = 0;
   function simular() {
     if (!directo) return;
     var e = EJEMPLOS[Math.floor(Math.random() * EJEMPLOS.length)], u = 1 + Math.floor(Math.random() * 12), kg = Math.round(u * e[2] * 100) / 100;
-    lanzar({ numero: ++numeroEnsayo, producto: e[0], kg: kg, texto: u + " " + e[1] + " · " + kg.toLocaleString("es-ES") + " kg" });
+    lanzar({ numero: ++numeroEnsayo, comercio: COMERCIOS_ENSAYO[Math.floor(Math.random() * COMERCIOS_ENSAYO.length)], producto: e[0], kg: kg, texto: u + " " + e[1] + " · " + kg.toLocaleString("es-ES") + " kg" });
     directo.temporizador = setTimeout(simular, 1200 + Math.random() * 2600);
   }
 
@@ -310,6 +311,49 @@
       rotulos[colorFranja] = tex;
       return tex;
     }
+    // Rótulo de una furgoneta del público: un logo con las iniciales y el nombre de su comercio.
+    var COLORES_COMERCIO = ["#14532D", "#0F766E", "#9A3412", "#7C2D12", "#1E3A8A", "#6B21A8", "#9F1239", "#3F6212"];
+    function rotuloComercio(nombre) {
+      var c = document.createElement("canvas"); c.width = 512; c.height = 256;
+      var x = c.getContext("2d");
+      var h = 0; for (var i = 0; i < nombre.length; i++) h = (h * 31 + nombre.charCodeAt(i)) >>> 0;
+      var color = COLORES_COMERCIO[h % COLORES_COMERCIO.length];
+      x.fillStyle = "#F4FAF6"; x.fillRect(0, 0, 512, 256);
+      x.fillStyle = color; x.fillRect(0, 196, 512, 44);
+      x.fillStyle = "#F5A524"; x.fillRect(0, 240, 512, 16);
+      // Logo: círculo de color con las iniciales.
+      var iniciales = nombre.split(/\s+/).filter(function (p) { return /\w/.test(p) && p.length > 2; }).slice(0, 2)
+        .map(function (p) { return p.charAt(0).toUpperCase(); }).join("") || nombre.charAt(0).toUpperCase();
+      x.fillStyle = color; x.beginPath(); x.arc(74, 98, 56, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = "#FFFFFF"; x.lineWidth = 4; x.beginPath(); x.arc(74, 98, 47, 0, Math.PI * 2); x.stroke();
+      x.fillStyle = "#FFFFFF"; x.textAlign = "center"; x.textBaseline = "middle";
+      x.font = "800 " + (iniciales.length > 1 ? 44 : 54) + "px Inter, Arial, sans-serif";
+      x.fillText(iniciales, 74, 101);
+      // Nombre: en una o dos líneas, lo más grande que quepa.
+      x.textAlign = "left"; x.textBaseline = "alphabetic"; x.fillStyle = "#10261B";
+      var ancho = 512 - 146 - 14, palabras = nombre.split(/\s+/), lineas = [nombre], tam = 84;
+      function cabe(ls, t) { x.font = "800 " + t + "px Inter, Arial, sans-serif"; return ls.every(function (l) { return x.measureText(l).width <= ancho; }); }
+      if (!cabe(lineas, 56) && palabras.length > 1) {
+        var mejor = null;
+        for (var k = 1; k < palabras.length; k++) {
+          var par = [palabras.slice(0, k).join(" "), palabras.slice(k).join(" ")];
+          var largo = Math.max(par[0].length, par[1].length);
+          if (!mejor || largo < mejor.l) mejor = { p: par, l: largo };
+        }
+        lineas = mejor.p; tam = 70;
+      }
+      while (tam > 22 && !cabe(lineas, tam)) tam -= 2;
+      x.font = "800 " + tam + "px Inter, Arial, sans-serif";
+      var y0 = lineas.length === 1 ? 98 + tam * 0.36 : 98 - 8;
+      lineas.forEach(function (l, n) { x.fillText(l, 146, y0 + n * (tam + 4), ancho); });
+      x.font = "600 24px Inter, Arial, sans-serif"; x.fillStyle = "#FFFFFF";
+      x.fillText("Villaviciosa de Odón", 22, 227);
+      var tex = new T.CanvasTexture(c);
+      tex.anisotropy = 4;
+      if ("colorSpace" in tex) tex.colorSpace = T.SRGBColorSpace;
+      return new T.MeshBasicMaterial({ map: tex });
+    }
+
     var matCarroceria = new T.MeshLambertMaterial({ color: 0xF1F7F3 });
     var matCristal = new T.MeshLambertMaterial({ color: 0x10261B });
     var matRueda = new T.MeshLambertMaterial({ color: 0x0B1511 });
@@ -317,7 +361,7 @@
     var geoCristal = new T.BoxGeometry(0.06, 0.5, 1.1), geoRueda = new T.CylinderGeometry(0.28, 0.28, 0.22, 16);
     var geoRotulo = new T.PlaneGeometry(2.6, 1.3);
     var materialesRotulo = {};
-    function furgoneta(colorFranja) {
+    function furgoneta(colorFranja, matPropio) {
       var g = new T.Group();
       var cuerpo = new T.Mesh(geoCaja, matCarroceria); cuerpo.position.set(-0.45, 1.05, 0); g.add(cuerpo);
       var cabina = new T.Mesh(geoCabina, matCarroceria); cabina.position.set(1.42, 0.85, 0); g.add(cabina);
@@ -325,7 +369,7 @@
       [[-1.25, 0.66], [-1.25, -0.66], [1.3, 0.66], [1.3, -0.66]].forEach(function (p) {
         var rueda = new T.Mesh(geoRueda, matRueda); rueda.rotation.x = Math.PI / 2; rueda.position.set(p[0], 0.28, p[1]); g.add(rueda);
       });
-      var mat = materialesRotulo[colorFranja] || (materialesRotulo[colorFranja] = new T.MeshBasicMaterial({ map: rotulo(colorFranja) }));
+      var mat = matPropio || materialesRotulo[colorFranja] || (materialesRotulo[colorFranja] = new T.MeshBasicMaterial({ map: rotulo(colorFranja) }));
       [0.661, -0.661].forEach(function (z) {
         var lado = new T.Mesh(geoRotulo, mat);
         lado.position.set(-0.45, 1.05, z);
@@ -406,10 +450,11 @@
     var API = null;
     function crearEnvio(d) {
       var e = { d: d, x: -66, carril: envios.length % 2 ? -1 : 1, llegado: false, t: 0 };
-      e.g = furgoneta("#F5A524");
+      e.mat = d.comercio ? rotuloComercio(d.comercio) : null;
+      e.g = furgoneta("#F5A524", e.mat);
       e.el = document.createElement("span");
       e.el.className = "etq-envio fuera"; e.el.setAttribute("aria-hidden", "true");
-      e.el.textContent = (d.numero ? "#" + d.numero + " · " : "") + d.texto;
+      e.el.textContent = (d.numero ? "#" + d.numero + " · " : "") + (d.comercio ? d.comercio + " · " : "") + d.texto;
       escenaPuente.appendChild(e.el);
       envios.push(e);
     }
@@ -446,7 +491,7 @@
         e.g.position.set(e.x, 0, e.carril * 1.15);
         e.g.scale.setScalar(Math.max(0.0001, s * 1.4));
         tmp.copy(e.g.position); colocar(e.el, tmp, e.carril > 0 ? 3.6 : 5.6, s < 0.3);
-        if (e.t > 1.8) { escena.remove(e.g); e.el.remove(); envios.splice(i, 1); }
+        if (e.t > 1.8) { escena.remove(e.g); e.el.remove(); if (e.mat) { e.mat.map.dispose(); e.mat.dispose(); } envios.splice(i, 1); }
       }
       for (var j = chispas.length - 1; j >= 0; j--) {
         var c = chispas[j], arr = c.p.geometry.attributes.position.array;

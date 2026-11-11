@@ -12,11 +12,17 @@
     <div class="dm-cabeza">
       <span class="en-vivo"><i aria-hidden="true"></i>En directo</span>
       <h1>Hoy eres un comercio de Villaviciosa</h1>
-      <p>¿Qué te ha sobrado? Elige un alimento y envíalo por el puente. Lo verás cruzar en la pantalla grande.</p>
+      <p>¿Qué te ha sobrado? Elige un alimento y envíalo por el puente. Lo verás cruzar en la pantalla grande, con el nombre de tu comercio en la furgoneta.</p>
+    </div>
+
+    <div class="dm-nombre">
+      <label class="dm-paso" for="dm-comercio">1 · Nombre de tu comercio</label>
+      <input id="dm-comercio" name="comercio" type="text" maxlength="24" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="Por ejemplo: Panadería Lola" required>
+      <span class="dm-ayuda">Saldrá rotulado en tu furgoneta. Máximo 24 letras.</span>
     </div>
 
     <fieldset class="dm-productos">
-      <legend>1 · Elige el alimento</legend>
+      <legend>2 · Elige el alimento</legend>
       {% for p in productos %}
         <label class="dm-producto">
           <input type="radio" name="producto" value="{{ p.clave }}" data-kg="{{ p.kg }}"{% if forloop.first %} checked{% endif %}>
@@ -27,7 +33,7 @@
     </fieldset>
 
     <div class="dm-cantidad">
-      <span class="dm-paso">2 · ¿Cuántas unidades?</span>
+      <span class="dm-paso">3 · ¿Cuántas unidades?</span>
       <div class="dm-contador" role="group" aria-label="Unidades">
         <button type="button" id="dm-menos" aria-label="Quitar una">−</button>
         <output id="dm-unidades" class="num" aria-live="polite">6</output>

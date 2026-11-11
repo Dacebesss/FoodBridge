@@ -10,6 +10,7 @@ from .models import Envio
 
 class DirectoTests(TestCase):
     def enviar(self, **datos):
+        datos.setdefault("comercio", "Panadería Lola")
         return self.client.post(reverse("directo:enviar"), json.dumps(datos), content_type="application/json")
 
     def test_la_pagina_del_movil_carga(self):
@@ -42,3 +43,16 @@ class DirectoTests(TestCase):
         self.assertEqual(len(nuevo["envios"]), 1)
         self.assertEqual(nuevo["envios"][0]["numero"], 2)
         self.assertEqual(nuevo["total"]["kg"], 3.0)
+
+    def test_el_comercio_es_obligatorio(self):
+        self.assertEqual(self.enviar(comercio="  ", producto="pan", unidades=2).status_code, 400)
+        self.assertFalse(Envio.objects.exists())
+
+    def test_sin_palabrotas_en_la_pantalla(self):
+        self.assertEqual(self.enviar(comercio="Panadería Mierda", producto="pan", unidades=2).status_code, 400)
+        self.assertFalse(Envio.objects.exists())
+
+    def test_el_comercio_llega_a_la_pantalla(self):
+        self.enviar(comercio="  Frutas   El Huerto ", producto="fruta", unidades=2)
+        datos = self.client.get(reverse("directo:estado") + "?desde=0").json()
+        self.assertEqual(datos["envios"][0]["comercio"], "Frutas El Huerto")

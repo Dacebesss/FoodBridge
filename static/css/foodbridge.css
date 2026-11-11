@@ -29,6 +29,8 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Lo que lleva el atributo hidden se oculta siempre, aunque su estilo diga display: grid o flex. */
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--blanco); color: var(--tinta); font-family: var(--f-texto); font-size: 16px; line-height: 1.6; }
 a { color: var(--bosque); }
 a:hover { color: var(--verde); }

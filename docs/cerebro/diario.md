@@ -9,6 +9,11 @@ Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 - **Causa real del cuadrado blanco:** el panel del QR salía también en `/#puente` (sin `#directo`), vacío,
   porque su CSS (`display: grid`) ganaba al atributo `hidden`. Arreglado en `puente.css`: ahora el panel
   solo aparece con `/#directo` y ahí el QR se dibuja bien (comprobado con capturas).
+- **Furgonetas con el nombre del comercio** (petición de Diego): en `/directo/` el público escribe primero el
+  nombre de su comercio (máx. 24 letras, se recuerda en el móvil) y su furgoneta cruza rotulada con un logo
+  de iniciales en un círculo de color y ese nombre. Filtro sencillo de palabrotas (no salen en el proyector).
+  `#directo-ensayo` usa comercios inventados. Regla general `[hidden]` en `foodbridge.css`: arreglaba también
+  el «¡Tu furgoneta ya está cruzando!» que salía antes de enviar en el móvil.
 - Diego lo prueba en el iPhone: fichas de países, viaje al puente y **FoodBridge en directo funcionando**
   (donación desde el móvil escaneando el QR → furgoneta en la pantalla del ordenador).
 
