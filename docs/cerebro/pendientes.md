@@ -28,6 +28,9 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
       del proyecto se descartó la app nativa por tiempo; Diego quiere retomarlo cuando la web esté lista.
 - [x] Nombre de la web cambiado: **foodbridgeuem.eu.pythonanywhere.com** (cuenta nueva `FoodBridgeUEM`, 11/11).
 - [ ] **Redefinir los roles** del equipo y de la app.
+      Propuesta de 7 puestos: 1 Jefe de proyecto · 2 Diseño y portada · 3 Cuentas y roles · 4 Lotes y entregas ·
+      5 Escáner · 6 Directo y presentación · 7 Legal, datos y comercios reales. Cuando se decida: un traspaso
+      por persona y cada uno sigue su parte en su propia sesión.
 - [ ] **Preparar la visita a un supermercado**: guion de demostración y repaso de que todo funciona.
 - [ ] **Cómo dar de alta a un comercio real** (p. ej. Mercadona): quién crea la cuenta, qué datos, qué acepta (con Pablo, legal).
 - [ ] Mejorar la explicación de **caducidad / consumo preferente** para que el comercio lo entienda sin ayuda.
