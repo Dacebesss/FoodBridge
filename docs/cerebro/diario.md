@@ -2,6 +2,11 @@
 
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
+## 2026-11-11
+- Cambios aplicados en PythonAnywhere (`git pull` → `migrate` → `collectstatic` → Reload).
+- Diego lo prueba en el iPhone: fichas de países, viaje al puente y **FoodBridge en directo funcionando**
+  (donación desde el móvil escaneando el QR → furgoneta en la pantalla del ordenador).
+
 ## 2026-11-10
 - Nueva portada (rama **`puente`**, pendiente de visto bueno): la Tierra centrada; al tocar Villaviciosa
   de Odón, zoom y viaje a un **puente 3D** con furgonetas de FoodBridge. Tres furgonetas abren
