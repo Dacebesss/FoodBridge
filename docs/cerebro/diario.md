@@ -6,6 +6,9 @@ Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 - Web nueva con el nombre del equipo: **https://foodbridgeuem.eu.pythonanywhere.com** (Gmail y cuenta de PythonAnywhere del equipo).
 - El QR salía como un cuadrado blanco: se le da tamaño fijo (fallo típico de Safari) y, si no se puede dibujar, se ve la dirección.
 - Cambios aplicados en PythonAnywhere (`git pull` → `migrate` → `collectstatic` → Reload).
+- **Causa real del cuadrado blanco:** el panel del QR salía también en `/#puente` (sin `#directo`), vacío,
+  porque su CSS (`display: grid`) ganaba al atributo `hidden`. Arreglado en `puente.css`: ahora el panel
+  solo aparece con `/#directo` y ahí el QR se dibuja bien (comprobado con capturas).
 - Diego lo prueba en el iPhone: fichas de países, viaje al puente y **FoodBridge en directo funcionando**
   (donación desde el móvil escaneando el QR → furgoneta en la pantalla del ordenador).
 

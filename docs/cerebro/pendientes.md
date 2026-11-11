@@ -5,6 +5,8 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
 ## Ahora
 - [x] Portada nueva aplicada en la web y probada en el iPhone (11/11): fichas de países, puente,
       furgonetas y **FoodBridge en directo** (ordenador con `/#directo` + iPhone escaneando el QR) ✅
+- [ ] Aplicar en FoodBridgeUEM el arreglo del panel del QR (`git pull` → `collectstatic` → Reload) y
+      comprobar que `/#puente` sale sin panel y `/#directo` con el QR.
 - [ ] **Antes de la presentación:** `python manage.py directo_reiniciar` para poner el contador a cero.
 - [ ] Ensayo general de la presentación con FoodBridge en directo (proyector + móviles del equipo).
 - [ ] **Probar lo que llevamos en la web**, por bloques (en el iPhone de Diego):
