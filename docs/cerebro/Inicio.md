@@ -11,6 +11,7 @@ Notas del proyecto para el equipo y para Claude. Se editan con **Obsidian** y se
 - [[como-funciona]] — reglas de la app (lotes, fechas, PIN, cancelaciones)
 - [[datos-verificados]] — cifras con su fuente
 - [[equipo]] — quién hace qué
+- [[0-reparto]] — las 7 partes del proyecto, con una guía por persona
 - [[publicar-web]] — cómo actualizar la web en PythonAnywhere
 
 ## Enlaces rápidos
