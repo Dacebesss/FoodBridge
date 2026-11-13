@@ -8,7 +8,17 @@ App web que conecta los comercios de **Villaviciosa de Odón** con comedores soc
 
 Proyecto de la asignatura *Eficacia Personal y Profesional* · 1º de Ingeniería Informática · Universidad Europea de Madrid.
 
-**Equipo:** Diego Acebes · Xinxin Zhu · Daniel Madgwick · Daniel Panadero · Juan Diego Ramírez · Pablo Cabanillas · Diego Fernández
+**Equipo** (una parte del proyecto cada uno; guías en [`docs/partes/`](docs/partes/0-reparto.md)):
+
+| Parte | Responsable |
+|---|---|
+| 1 · Jefe de proyecto | Diego Acebes |
+| 2 · Diseño y portada | Xinxin Zhu |
+| 3 · Cuentas y roles | Juan Diego Ramírez |
+| 4 · Lotes y entregas | Diego Fernández |
+| 5 · Escáner de productos | Daniel Madgwick |
+| 6 · FoodBridge en directo y presentación | Daniel Panadero |
+| 7 · Legal, datos y comercios reales | Pablo Cabanillas |
 
 ---
 
