@@ -13,6 +13,8 @@ la mejora en su **rama** de GitHub y la explica en la presentación.
 | 6 | FoodBridge en directo y presentación | Daniel Panadero | `6-directo-presentacion` | [[6-directo-presentacion]] |
 | 7 | Legal, datos y comercios reales | Pablo Cabanillas | `7-legal-datos` | [[7-legal-datos]] |
 
+Para empezar, cada uno pega su bloque de [[traspasos]] en una sesión nueva de Claude Code.
+
 ## Cómo trabaja cada uno en su rama
 
 1. **Lee tu guía** (la tabla de arriba). Explica tu parte sin tecnicismos: qué archivos son tuyos,
