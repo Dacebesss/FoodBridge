@@ -28,6 +28,7 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
       del proyecto se descartó la app nativa por tiempo; Diego quiere retomarlo cuando la web esté lista.
 - [x] Nombre de la web cambiado: **foodbridgeuem.eu.pythonanywhere.com** (cuenta nueva `FoodBridgeUEM`, 11/11).
 - [x] **Roles redefinidos** (12/11): 7 partes, una rama y una guía por persona → [[0-reparto]].
+- [ ] Cada responsable ensaya su parte del [[guion-presentacion]] (≈ 2 min por persona).
 - [ ] Cada responsable lee su guía y se cambia a su rama; los cambios entran en `main` por *pull request*.
 - [ ] **Preparar la visita a un supermercado**: guion de demostración y repaso de que todo funciona.
 - [ ] **Cómo dar de alta a un comercio real** (p. ej. Mercadona): quién crea la cuenta, qué datos, qué acepta (con Pablo, legal).
