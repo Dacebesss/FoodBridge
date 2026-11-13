@@ -23,7 +23,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 1 (apertura) y 8 (cierre)): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 2 · Diseño y portada — Xinxin Zhu
@@ -46,7 +46,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 3): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 3 · Cuentas y roles — Juan Diego Ramírez
@@ -69,7 +69,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 6): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 4 · Lotes y entregas — Diego Fernández
@@ -92,7 +92,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 7): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 5 · Escáner de productos — Daniel Madgwick
@@ -115,7 +115,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 5): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 6 · FoodBridge en directo y presentación — Daniel Panadero
@@ -138,7 +138,7 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 4): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
 
 ## 7 · Legal, datos y comercios reales — Pablo Cabanillas
@@ -161,5 +161,5 @@ Reglas:
 - Explícame las cosas claras y paso a paso: tengo que entender mi parte y poder explicarla en la presentación.
 - Solo datos verificados, con su fuente. Nunca contraseñas en el repositorio (es público).
 
-Primer paso: explícame mi parte con mis propias palabras de ejemplo, enséñame cómo probarla en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
+Primer paso: lee docs/partes/guion-presentacion.md y enséñame MI parte del guion (intervención 2): qué tengo que contar en la presentación final, con qué se ve en pantalla. Explícamela para que la entienda, ayúdame a decirla con mis palabras en unos 2 minutos y hazme las preguntas que podría hacer el profesor. Después enséñame cómo probar mi parte en la web (https://foodbridgeuem.eu.pythonanywhere.com) y proponme por cuál de mis tareas pendientes empezar.
 ```
