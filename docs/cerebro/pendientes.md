@@ -7,6 +7,8 @@ Volver a [[Inicio]]. Lo de arriba es lo más urgente.
       furgonetas y **FoodBridge en directo** (ordenador con `/#directo` + iPhone escaneando el QR) ✅
 - [ ] Aplicar en FoodBridgeUEM los últimos cambios (`git pull` → **`migrate`** → `collectstatic` → Reload) y
       comprobar: `/#puente` sin panel, `/#directo` con QR y furgonetas con el nombre del comercio.
+- [ ] Cambiar la contraseña de `admin@foodbridge.es` en FoodBridgeUEM (`python manage.py changepassword admin@foodbridge.es`) si sigue siendo la pública.
+- [ ] Invitar a los 6 compañeros como colaboradores en GitHub y pasarles los traspasos.
 - [ ] **Antes de la presentación:** `python manage.py directo_reiniciar` para poner el contador a cero.
 - [ ] Ensayo general de la presentación con FoodBridge en directo (proyector + móviles del equipo).
 - [ ] **Probar lo que llevamos en la web**, por bloques (en el iPhone de Diego):

@@ -2,6 +2,11 @@
 
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
+## 2026-11-23
+- Sección del equipo con el reparto final; cada nombre se puede pulsar y abre una ficha con su parte (3 puntos).
+  Aplicado en FoodBridgeUEM.
+- Guion de la presentación (`docs/partes/guion-presentacion.md`) y traspasos con el ensayo de cada parte.
+
 ## 2026-11-12
 - `#directo` y la portada sin el QR comprobados por Diego en la web nueva ✅
 - **Reparto en 7 partes**: guía por persona en `docs/partes/` y 7 ramas en GitHub (`1-direccion` … `7-legal-datos`).
