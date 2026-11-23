@@ -82,3 +82,20 @@ class PortadaTests(TestCase):
         # Three.js se sirve desde nuestro propio proyecto, no desde otra web
         self.assertContains(respuesta, "/static/vendor/three.min.js")
         self.assertContains(respuesta, reverse("cuentas:registro", args=["comercio"]))
+
+
+class MapaRegistroTests(TestCase):
+    def test_el_comercio_guarda_su_punto_en_el_mapa(self):
+        self.client.post(reverse("cuentas:registro", args=["comercio"]),
+                         datos_registro(latitud="40.358900", longitud="-3.899200"))
+        u = Usuario.objects.get(email="prueba@ejemplo.es")
+        self.assertTrue(u.en_mapa)
+
+    def test_sin_punto_tambien_se_puede_registrar(self):
+        self.client.post(reverse("cuentas:registro", args=["comercio"]), datos_registro())
+        self.assertFalse(Usuario.objects.get(email="prueba@ejemplo.es").en_mapa)
+
+    def test_un_punto_fuera_de_villaviciosa_no_vale(self):
+        self.client.post(reverse("cuentas:registro", args=["comercio"]),
+                         datos_registro(latitud="41.390000", longitud="2.170000"))
+        self.assertFalse(Usuario.objects.filter(email="prueba@ejemplo.es").exists())

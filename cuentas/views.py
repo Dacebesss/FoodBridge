@@ -26,6 +26,20 @@ def resumen_entregas(lotes):
     return {"n": datos["n"], "kg": datos["kg"] or 0}
 
 
+def comercios_en_mapa(lotes):
+    """Un punto por comercio con lotes disponibles (solo los que han marcado su tienda en el mapa)."""
+    puntos = {}
+    for lote in lotes:
+        c = lote.comercio
+        if not c.en_mapa:
+            continue
+        if c.pk not in puntos:
+            puntos[c.pk] = {"nombre": c.nombre_entidad, "direccion": c.direccion, "lat": float(c.latitud),
+                            "lon": float(c.longitud), "n": 0, "ancla": f"lote-{lote.pk}"}
+        puntos[c.pk]["n"] += 1
+    return list(puntos.values())
+
+
 def inicio(request):
     """Página de bienvenida. Si ya has iniciado sesión, te lleva a tu panel."""
     if request.user.is_authenticated:
@@ -101,8 +115,10 @@ def panel(request):
     contexto = {}
     if usuario.puede_reservar:
         mias = Lote.objects.filter(entidad=usuario).select_related("comercio")
+        disponibles = list(operaciones.lotes_visibles_para(usuario))
         contexto = {
-            "disponibles": operaciones.lotes_visibles_para(usuario),
+            "disponibles": disponibles,
+            "mapa_comercios": comercios_en_mapa(disponibles),
             "reservas": mias.filter(estado=Lote.Estado.RESERVADO),
             "entregas": resumen_entregas(mias),
         }

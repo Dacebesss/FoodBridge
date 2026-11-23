@@ -2,6 +2,14 @@
 
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
+## 2026-11-23 (2)
+- **Prioridad por caducidad**: la entidad ve primero lo de caducidad más cercana, luego el consumo preferente;
+  etiqueta roja «Urgente» si caduca hoy o mañana (`lotes_visibles_para` en `lotes/operaciones.py`).
+- **Mapa** (Leaflet 1.9.4 en `static/vendor/` + mapa base claro de CARTO/OpenStreetMap): el comercio marca su
+  tienda al registrarse (campos `latitud`/`longitud`, migración `cuentas/0002`); la entidad ve en su panel un punto
+  por comercio con lotes disponibles. Los comercios de la demo reciben su punto al ejecutar `datos_demo`.
+- 45 pruebas OK.
+
 ## 2026-11-23
 - Sección del equipo con el reparto final; cada nombre se puede pulsar y abre una ficha con su parte (3 puntos).
   Aplicado en FoodBridgeUEM.

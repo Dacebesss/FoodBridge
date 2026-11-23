@@ -12,8 +12,9 @@
       <h3>{{ lote.nombre }}</h3>
       <p class="lote-meta">{% if lote.marca %}{{ lote.marca }} · {% endif %}<span class="num">{{ lote.unidades }}</span> ud. · <span class="num">{{ lote.kg|floatformat:"-2" }}</span> kg</p>
       <div class="lote-etiquetas">
+        {% if lote.urgente and lote.estado == "disponible" %}<span class="etiqueta urgente">Urgente</span>{% endif %}
         {% if lote.tipo_fecha == "caducidad" %}
-          <span class="etiqueta espera">{% if lote.dias_restantes == 0 %}Caduca hoy{% else %}Caduca el {{ lote.fecha|date:"j M" }}{% endif %}</span>
+          <span class="etiqueta espera">{% if lote.dias_restantes == 0 %}Caduca hoy{% elif lote.dias_restantes == 1 %}Caduca mañana{% else %}Caduca el {{ lote.fecha|date:"j M" }}{% endif %}</span>
         {% else %}
           <span class="etiqueta preferente">Consumo pref. {{ lote.fecha|date:"j M" }}</span>
         {% endif %}

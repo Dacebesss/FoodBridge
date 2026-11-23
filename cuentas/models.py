@@ -77,6 +77,10 @@ class Usuario(AbstractUser):
         help_text="Para las ONG: nº del registro de asociaciones o CIF. Sirve para verificarlas.",
     )
 
+    # Posición en el mapa (la marca el comercio al registrarse tocando en un mini mapa).
+    latitud = models.DecimalField("latitud", max_digits=9, decimal_places=6, null=True, blank=True)
+    longitud = models.DecimalField("longitud", max_digits=9, decimal_places=6, null=True, blank=True)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -101,6 +105,10 @@ class Usuario(AbstractUser):
     @property
     def es_admin(self):
         return self.rol == self.Rol.ADMIN or self.is_superuser
+
+    @property
+    def en_mapa(self):
+        return self.latitud is not None and self.longitud is not None
 
     @property
     def puede_reservar(self):

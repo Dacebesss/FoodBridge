@@ -8,7 +8,7 @@ probar y explicar sin tener que mirar el HTML.
 import secrets
 
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.utils import timezone
 
 from .models import Lote
@@ -22,7 +22,15 @@ def nuevo_pin():
 
 
 def lotes_visibles_para(entidad):
-    """Lotes que una entidad puede reservar: disponibles, de su municipio y aún a tiempo."""
+    """
+    Lotes que una entidad puede reservar: disponibles, de su municipio y aún a tiempo.
+
+    Van ordenados por PRIORIDAD (lo que antes se estropea, primero):
+      1. Los de fecha de caducidad, de la fecha más cercana a la más lejana
+         (pasada esa fecha ya no se pueden donar: son los que más prisa corren).
+      2. Los de consumo preferente, también por fecha.
+      3. Si empatan, el que tiene la franja de recogida que termina antes.
+    """
     hoy = timezone.localdate()
     return (
         Lote.objects.filter(
@@ -33,6 +41,12 @@ def lotes_visibles_para(entidad):
         # Pasada la caducidad no se dona; el consumo preferente sí.
         .filter(Q(tipo_fecha=Lote.TipoFecha.PREFERENTE) | Q(fecha__gte=hoy))
         .select_related("comercio")
+        .annotate(prioridad=Case(
+            When(tipo_fecha=Lote.TipoFecha.CADUCIDAD, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ))
+        .order_by("prioridad", "fecha", "recogida_fin")
     )
 
 

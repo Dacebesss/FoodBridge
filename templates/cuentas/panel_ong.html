@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Mi panel · FoodBridge{% endblock %}
+{% load static %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'vendor/leaflet.css' %}">{% endblock %}
 {% block content %}
 <div class="saludo">
   <h1>Hola, {{ user.nombre_entidad }}</h1>
@@ -29,6 +31,13 @@
   {% endif %}
 
   <p class="titulo-bloque">Disponible en {{ user.municipio }}{% if disponibles %} · {{ disponibles|length }}{% endif %}</p>
+  {% if mapa_comercios %}
+    {{ mapa_comercios|json_script:"datos-mapa" }}
+    <div class="mapa mapa-panel" data-modo="ver" role="region" aria-label="Mapa de los comercios con comida disponible"></div>
+    {% if disponibles|length > 1 %}<p class="ayuda orden-prioridad">Ordenado por prioridad: primero lo que caduca antes.</p>{% endif %}
+  {% elif disponibles|length > 1 %}
+    <p class="ayuda orden-prioridad">Ordenado por prioridad: primero lo que caduca antes.</p>
+  {% endif %}
   {% for lote in disponibles %}
     {% include "lotes/_tarjeta.html" with modo="disponible" %}
   {% empty %}
@@ -41,3 +50,4 @@
   </div>
 {% endif %}
 {% endblock %}
+{% block scripts %}<script src="{% static 'vendor/leaflet.js' %}" defer></script><script src="{% static 'js/mapa.js' %}" defer></script>{% endblock %}

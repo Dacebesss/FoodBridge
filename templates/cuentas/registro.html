@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Registro · FoodBridge{% endblock %}
+{% load static %}
+{% block estilos %}{% if rol == "comercio" %}<link rel="stylesheet" href="{% static 'vendor/leaflet.css' %}">{% endif %}{% endblock %}
 {% block content %}
 <div class="saludo">
   {% if rol == "comercio" %}
@@ -13,7 +15,9 @@
 
 <form method="post" class="tarjeta formulario" novalidate>
   {% csrf_token %}
-  {% for field in form %}
+  {% if form.non_field_errors %}<div class="aviso error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+  {% for field in form.visible_fields %}
     <div class="campo">
       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
       {{ field }}
@@ -21,8 +25,16 @@
       {% if field.help_text %}<div class="ayuda">{{ field.help_text|safe }}</div>{% endif %}
     </div>
   {% endfor %}
+  {% if rol == "comercio" %}
+    <div class="campo">
+      <span class="etiqueta-campo" id="mapa-ayuda-titulo">¿Dónde está tu tienda?</span>
+      <div class="mapa mapa-registro" id="mapa-registro" data-modo="elegir" role="application" aria-labelledby="mapa-ayuda-titulo" aria-describedby="mapa-ayuda"></div>
+      <div class="ayuda" id="mapa-ayuda">Toca en el mapa para marcarla. Así las entidades sociales verán dónde recoger la comida. Puedes dejarlo para más tarde.</div>
+    </div>
+  {% endif %}
   <button class="btn btn-verde btn-bloque" type="submit">Crear cuenta</button>
 </form>
 
 <p class="ayuda centrado"><a href="{% url 'cuentas:registro_elegir' %}">← Cambiar tipo de cuenta</a></p>
 {% endblock %}
+{% block scripts %}{% if rol == "comercio" %}<script src="{% static 'vendor/leaflet.js' %}" defer></script><script src="{% static 'js/mapa.js' %}" defer></script>{% endif %}{% endblock %}

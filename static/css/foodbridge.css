@@ -144,6 +144,21 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .btn-peque { min-height: 36px; padding: 0 14px; font-size: 14px; }
 .etiqueta.preferente { background: #DDF4F1; color: #0B6E63; }
+/* Mapas (Leaflet): mismo borde y radio que las tarjetas, puntos con los verdes de la marca. */
+.mapa { height: 300px; border-radius: 18px; border: 1px solid var(--borde); overflow: hidden; background: var(--suave); z-index: 0; }
+.mapa.leaflet-container { background: var(--suave); }
+.mapa-registro { height: 240px; cursor: crosshair; }
+.mapa-panel { margin-bottom: 4px; }
+.mapa .leaflet-control-attribution { font-size: 10px; background: rgba(255,255,255,0.8); }
+.mapa .leaflet-control-zoom a { color: var(--bosque); }
+.pin-mapa span { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--verde); color: var(--blanco); font: 700 14px var(--f-texto); border: 3px solid var(--blanco); box-shadow: 0 4px 12px rgba(3,17,10,0.25); }
+.mapa-registro .pin-mapa span { background: var(--bosque); }
+.mapa .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 12px 30px rgba(3,17,10,0.15); }
+.mapa .leaflet-popup-content { margin: 12px 16px; font: 14px/1.5 var(--f-texto); color: var(--tinta); }
+.mapa .leaflet-popup-content a { color: var(--verde); font-weight: 600; }
+.etiqueta-campo { font-weight: 600; font-size: 14px; }
+.orden-prioridad { margin: 0 0 4px; }
+.etiqueta.urgente { background: var(--coral); color: var(--blanco); }
 .etiqueta.neutra { background: var(--suave); color: var(--gris); border: 1px solid var(--borde); }
 .obligatorio { color: var(--gris-claro); }
 .campo.con-error input, .campo.con-error select { border-color: #E5838A; }

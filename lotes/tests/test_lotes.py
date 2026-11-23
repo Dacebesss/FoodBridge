@@ -219,3 +219,47 @@ class FormularioTests(TestCase):
         r = self.client.post(reverse("lotes:publicar"), datos_formulario(codigo_barras="3017624010702"))
         self.assertContains(r, "no es válido")
         self.assertFalse(Lote.objects.exists())
+
+
+class PrioridadTests(TestCase):
+    """La entidad ve primero lo que antes se estropea."""
+
+    def setUp(self):
+        self.comercio = crear_usuario("tienda@ejemplo.es", Usuario.Rol.COMERCIO)
+        self.entidad = crear_usuario("ong@ejemplo.es", Usuario.Rol.ONG)
+
+    def test_caducidad_cercana_primero_y_preferente_despues(self):
+        pref = crear_lote(self.comercio, nombre="Galletas", tipo_fecha=Lote.TipoFecha.PREFERENTE,
+                          fecha=HOY() - datetime.timedelta(days=3))
+        lejos = crear_lote(self.comercio, nombre="Queso", fecha=HOY() + datetime.timedelta(days=5))
+        hoy = crear_lote(self.comercio, nombre="Ensalada", fecha=HOY())
+        orden = list(operaciones.lotes_visibles_para(self.entidad))
+        self.assertEqual(orden, [hoy, lejos, pref])
+
+    def test_empate_gana_la_franja_que_acaba_antes(self):
+        ahora = timezone.now()
+        tarde = crear_lote(self.comercio, nombre="A", recogida_fin=ahora + datetime.timedelta(hours=5))
+        pronto = crear_lote(self.comercio, nombre="B", recogida_fin=ahora + datetime.timedelta(hours=1))
+        self.assertEqual(list(operaciones.lotes_visibles_para(self.entidad)), [pronto, tarde])
+
+    def test_urgente_si_caduca_hoy_o_manana(self):
+        self.assertTrue(crear_lote(self.comercio, fecha=HOY() + datetime.timedelta(days=1)).urgente)
+        self.assertFalse(crear_lote(self.comercio, fecha=HOY() + datetime.timedelta(days=2)).urgente)
+        self.assertFalse(crear_lote(self.comercio, tipo_fecha=Lote.TipoFecha.PREFERENTE, fecha=HOY()).urgente)
+
+
+class MapaTests(TestCase):
+    def setUp(self):
+        self.entidad = crear_usuario("ong@ejemplo.es", Usuario.Rol.ONG)
+
+    def test_el_panel_lleva_un_punto_por_comercio_con_lotes(self):
+        con = crear_usuario("con@ejemplo.es", Usuario.Rol.COMERCIO)
+        con.latitud, con.longitud = Decimal("40.358"), Decimal("-3.900")
+        con.save()
+        sin = crear_usuario("sin@ejemplo.es", Usuario.Rol.COMERCIO)
+        crear_lote(con); crear_lote(con); crear_lote(sin)
+        self.client.force_login(self.entidad)
+        r = self.client.get(reverse("cuentas:panel"))
+        self.assertEqual(len(r.context["mapa_comercios"]), 1)
+        self.assertEqual(r.context["mapa_comercios"][0]["n"], 2)
+        self.assertContains(r, 'id="datos-mapa"')

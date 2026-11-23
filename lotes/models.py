@@ -97,6 +97,11 @@ class Lote(models.Model):
         return (self.fecha - timezone.localdate()).days
 
     @property
+    def urgente(self):
+        """Caduca hoy o mañana: la entidad lo ve marcado en rojo."""
+        return self.tipo_fecha == self.TipoFecha.CADUCIDAD and self.dias_restantes <= 1
+
+    @property
     def franja_terminada(self):
         return timezone.now() >= self.recogida_fin
 

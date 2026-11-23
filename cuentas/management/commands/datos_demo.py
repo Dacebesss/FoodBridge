@@ -34,6 +34,12 @@ CUENTAS = [
 ]
 
 
+# Posición en el mapa de los comercios inventados (en el centro de Villaviciosa de Odón).
+POSICIONES = {
+    "plaza@foodbridge.es": ("40.358900", "-3.899200"),
+    "espiga@foodbridge.es": ("40.356300", "-3.903400"),
+}
+
 # producto, marca, categoría, unidades, kg, tipo de fecha, días hasta la fecha, comercio
 LOTES = [
     ("Yogures naturales (pack de 4)", "", Lote.Categoria.LACTEOS, 6, "3.00",
@@ -69,6 +75,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for email, rol, estado, nombre, direccion, registro in CUENTAS:
             if Usuario.objects.filter(email=email).exists():
+                # A las cuentas que ya existían les ponemos su punto en el mapa si aún no lo tienen.
+                if email in POSICIONES:
+                    lat, lon = POSICIONES[email]
+                    Usuario.objects.filter(email=email, latitud__isnull=True).update(
+                        latitud=Decimal(lat), longitud=Decimal(lon))
                 self.stdout.write(f"  ya existe  {email}")
                 continue
             es_admin = rol == Usuario.Rol.ADMIN
@@ -82,6 +93,8 @@ class Command(BaseCommand):
                 registro_oficial=registro,
                 is_staff=es_admin,
                 is_superuser=es_admin,
+                latitud=Decimal(POSICIONES[email][0]) if email in POSICIONES else None,
+                longitud=Decimal(POSICIONES[email][1]) if email in POSICIONES else None,
             )
             self.stdout.write(self.style.SUCCESS(f"  creada     {email}"))
 
