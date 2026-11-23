@@ -16,8 +16,11 @@
   var CENTRO = [40.3576, -3.9010];   // Villaviciosa de Odón
   var mapa = L.map(caja, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView(CENTRO, 15);
   // Mapa libre de OpenStreetMap (sin clave). En CSS se le quita color para que encaje con la web.
+  // OpenStreetMap exige saber desde qué web se pide el mapa: enviamos solo el dominio
+  // (la web, por seguridad, no lo envía por defecto y entonces OSM responde «Access blocked»).
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
+    referrerPolicy: "strict-origin-when-cross-origin",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(mapa);
   mapa.attributionControl.setPrefix(false);
