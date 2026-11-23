@@ -1,5 +1,5 @@
 /*
-  FoodBridge · mapas (Leaflet + mapa base claro de CARTO/OpenStreetMap)
+  FoodBridge · mapas (Leaflet + mapa de OpenStreetMap, aclarado con CSS)
   ---------------------------------------------------------------------
   · data-modo="elegir" (registro del comercio): al tocar el mapa se coloca la tienda
     y se guardan la latitud y la longitud en los campos ocultos del formulario.
@@ -15,9 +15,10 @@
 
   var CENTRO = [40.3576, -3.9010];   // Villaviciosa de Odón
   var mapa = L.map(caja, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView(CENTRO, 15);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    maxZoom: 19, subdomains: "abcd",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  // Mapa libre de OpenStreetMap (sin clave). En CSS se le quita color para que encaje con la web.
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(mapa);
   mapa.attributionControl.setPrefix(false);
 
