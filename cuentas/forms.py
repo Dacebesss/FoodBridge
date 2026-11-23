@@ -29,7 +29,7 @@ class RegistroForm(UserCreationForm):
         self.rol = rol
         if rol == Usuario.Rol.COMERCIO:
             self.fields["nombre_entidad"].widget.attrs["placeholder"] = "Supermercado Plaza"
-            self.fields["direccion"].widget.attrs["placeholder"] = "C/ Carretera de Boadilla, 12"
+            self.fields["direccion"].widget.attrs["placeholder"] = "C/ Mayor, 12"
             # Los comercios no necesitan nº de registro
             del self.fields["registro_oficial"]
         else:

@@ -24,7 +24,7 @@ CUENTAS = [
     ("admin@foodbridge.es", Usuario.Rol.ADMIN, Usuario.Estado.APROBADO,
      "Equipo FoodBridge", "Universidad Europea de Madrid", ""),
     ("plaza@foodbridge.es", Usuario.Rol.COMERCIO, Usuario.Estado.APROBADO,
-     "Supermercado Plaza", "C/ Carretera de Boadilla, 12", ""),
+     "Supermercado Plaza", "C/ López Puigcerver, 2", ""),
     ("espiga@foodbridge.es", Usuario.Rol.COMERCIO, Usuario.Estado.APROBADO,
      "Panadería La Espiga", "C/ Cueva, 3", ""),
     ("sanjose@foodbridge.es", Usuario.Rol.ONG, Usuario.Estado.APROBADO,
@@ -38,6 +38,11 @@ CUENTAS = [
 POSICIONES = {
     "plaza@foodbridge.es": ("40.358900", "-3.899200"),
     "espiga@foodbridge.es": ("40.356300", "-3.903400"),
+}
+
+# Direcciones de la demo que se cambiaron para que coincidan con su punto del mapa.
+DIRECCIONES_CORREGIDAS = {
+    "plaza@foodbridge.es": ("C/ Carretera de Boadilla, 12", "C/ López Puigcerver, 2"),
 }
 
 # producto, marca, categoría, unidades, kg, tipo de fecha, días hasta la fecha, comercio
@@ -80,6 +85,9 @@ class Command(BaseCommand):
                     lat, lon = POSICIONES[email]
                     Usuario.objects.filter(email=email, latitud__isnull=True).update(
                         latitud=Decimal(lat), longitud=Decimal(lon))
+                if email in DIRECCIONES_CORREGIDAS:
+                    antigua, nueva = DIRECCIONES_CORREGIDAS[email]
+                    Usuario.objects.filter(email=email, direccion=antigua).update(direccion=nueva)
                 self.stdout.write(f"  ya existe  {email}")
                 continue
             es_admin = rol == Usuario.Rol.ADMIN

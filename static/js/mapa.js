@@ -1,5 +1,5 @@
 /*
-  FoodBridge · mapas (Leaflet + mapa de OpenStreetMap, aclarado con CSS)
+  FoodBridge · mapas (Leaflet + mapa de OpenStreetMap, a color)
   ---------------------------------------------------------------------
   · data-modo="elegir" (registro del comercio): al tocar el mapa se coloca la tienda
     y se guardan la latitud y la longitud en los campos ocultos del formulario.
@@ -15,7 +15,7 @@
 
   var CENTRO = [40.3576, -3.9010];   // Villaviciosa de Odón
   var mapa = L.map(caja, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView(CENTRO, 15);
-  // Mapa libre de OpenStreetMap (sin clave). En CSS se le quita color para que encaje con la web.
+  // Mapa libre de OpenStreetMap (sin clave).
   // OpenStreetMap exige saber desde qué web se pide el mapa: enviamos solo el dominio
   // (la web, por seguridad, no lo envía por defecto y entonces OSM responde «Access blocked»).
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
