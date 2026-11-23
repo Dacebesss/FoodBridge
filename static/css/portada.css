@@ -130,7 +130,20 @@
 .m-pin { font: 700 42px var(--f-dato); letter-spacing: 0.18em; text-align: center; color: var(--bosque); background: var(--blanco); border: 2px dashed var(--verde); border-radius: 14px; padding: 14px 0; }
 
 .equipo { display: flex; flex-wrap: wrap; gap: 10px; }
-.persona { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 99px; background: var(--blanco); border: 1px solid var(--borde); font-size: 14px; }
+.persona { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 99px; background: var(--blanco); border: 1px solid var(--borde); font: inherit; font-size: 14px; color: var(--tinta); cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.persona:hover { border-color: var(--verde); }
+.persona:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+.persona[aria-expanded="true"] { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(34,163,90,0.15); }
+.persona:active { transform: scale(0.98); }
+.fichas-equipo:empty { display: none; }
+.ficha-persona { margin-top: 14px; max-width: 620px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 18px 20px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 18px; box-shadow: 0 12px 30px rgba(3,17,10,0.06); animation: ficha-entra .25s ease-out; }
+.ficha-persona .avatar { width: 44px; height: 44px; font-size: 14px; }
+.ficha-persona p { margin: 0; }
+.ficha-nombre { font-size: 15px; color: var(--gris); margin-bottom: 4px !important; }
+.ficha-nombre b { color: var(--tinta); }
+.ficha-persona ul { margin: 10px 0 0; padding-left: 18px; color: var(--gris); font-size: 14px; display: grid; gap: 4px; }
+@keyframes ficha-entra { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .ficha-persona { animation: none; } .persona { transition: none; } }
 .persona b { font-weight: 600; }
 .persona span.rol { color: var(--gris); }
 .avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--blanco); background: var(--bosque); }

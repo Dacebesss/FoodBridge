@@ -128,13 +128,43 @@
   <div class="envoltura">
     <p class="antetitulo" style="color: var(--gris)">Equipo · 1.º de Ingeniería Informática · Universidad Europea de Madrid</p>
     <div class="equipo">
-      <span class="persona"><span class="avatar">DA</span><b>Diego Acebes</b><span class="rol">Jefe de proyecto</span></span>
-      <span class="persona"><span class="avatar" style="background: var(--coral)">XZ</span><b>Xinxin Zhu</b><span class="rol">Diseño y portada</span></span>
-      <span class="persona"><span class="avatar" style="background: var(--verde)">JR</span><b>Juan Diego Ramírez</b><span class="rol">Cuentas y roles</span></span>
-      <span class="persona"><span class="avatar" style="background: #0F766E">DF</span><b>Diego Fernández</b><span class="rol">Lotes y entregas</span></span>
-      <span class="persona"><span class="avatar" style="background: var(--turquesa)">DM</span><b>Daniel Madgwick</b><span class="rol">Escáner de productos</span></span>
-      <span class="persona"><span class="avatar" style="background: #C27803">DP</span><b>Daniel Panadero</b><span class="rol">En directo y presentación</span></span>
-      <span class="persona"><span class="avatar" style="background: #7C5CC4">PC</span><b>Pablo Cabanillas</b><span class="rol">Legal, datos y comercios</span></span>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-da"><span class="avatar">DA</span><b>Diego Acebes</b><span class="rol">Jefe de proyecto</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-xz"><span class="avatar" style="background: var(--coral)">XZ</span><b>Xinxin Zhu</b><span class="rol">Diseño y portada</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-jr"><span class="avatar" style="background: var(--verde)">JR</span><b>Juan Diego Ramírez</b><span class="rol">Cuentas y roles</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-df"><span class="avatar" style="background: #0F766E">DF</span><b>Diego Fernández</b><span class="rol">Lotes y entregas</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-dm"><span class="avatar" style="background: var(--turquesa)">DM</span><b>Daniel Madgwick</b><span class="rol">Escáner de productos</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-dp"><span class="avatar" style="background: #C27803">DP</span><b>Daniel Panadero</b><span class="rol">En directo y presentación</span></button>
+      <button class="persona" type="button" aria-expanded="false" aria-controls="ficha-pc"><span class="avatar" style="background: #7C5CC4">PC</span><b>Pablo Cabanillas</b><span class="rol">Legal, datos y comercios</span></button>
+    </div>
+    <div class="fichas-equipo" aria-live="polite">
+      <div class="ficha-persona" id="ficha-da" hidden>
+        <span class="avatar">DA</span>
+        <div><p class="ficha-nombre"><b>Diego Acebes</b> · Jefe de proyecto</p><ul><li>Reparte el trabajo en 7 partes y revisa lo de cada uno antes de unirlo</li><li>Gestiona GitHub y publica la web en PythonAnywhere</li><li>Abre y cierra la presentación</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-xz" hidden>
+        <span class="avatar" style="background: var(--coral)">XZ</span>
+        <div><p class="ficha-nombre"><b>Xinxin Zhu</b> · Diseño y portada</p><ul><li>Logo, colores verde y blanco y tipografía</li><li>La Tierra 3D con el dato de cada país</li><li>El puente con las furgonetas y sus tres capítulos</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-jr" hidden>
+        <span class="avatar" style="background: var(--verde)">JR</span>
+        <div><p class="ficha-nombre"><b>Juan Diego Ramírez</b> · Cuentas y roles</p><ul><li>Registro e inicio de sesión con email</li><li>Tres tipos de cuenta: comercio, entidad social y administración</li><li>Las entidades se verifican con su CIF antes de poder reservar</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-df" hidden>
+        <span class="avatar" style="background: #0F766E">DF</span>
+        <div><p class="ficha-nombre"><b>Diego Fernández</b> · Lotes y entregas</p><ul><li>Publicar, reservar y entregar un lote</li><li>PIN de 4 cifras para confirmar la entrega</li><li>Reglas de fechas, cancelaciones y franjas de recogida</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-dm" hidden>
+        <span class="avatar" style="background: var(--turquesa)">DM</span>
+        <div><p class="ficha-nombre"><b>Daniel Madgwick</b> · Escáner de productos</p><ul><li>Lectura del código de barras con la cámara del móvil</li><li>Datos del producto desde Open Food Facts</li><li>Pruebas en iPhone y Android</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-dp" hidden>
+        <span class="avatar" style="background: #C27803">DP</span>
+        <div><p class="ficha-nombre"><b>Daniel Panadero</b> · En directo y presentación</p><ul><li>FoodBridge en directo: QR y furgonetas con el nombre de cada comercio</li><li>Guion de la presentación</li><li>Ensayos con el equipo</li></ul></div>
+      </div>
+      <div class="ficha-persona" id="ficha-pc" hidden>
+        <span class="avatar" style="background: #7C5CC4">PC</span>
+        <div><p class="ficha-nombre"><b>Pablo Cabanillas</b> · Legal, datos y comercios</p><ul><li>Ley 1/2025 de desperdicio alimentario</li><li>Cada cifra con su fuente oficial</li><li>Contacto con comercios y entidades de Villaviciosa</li></ul></div>
+      </div>
     </div>
     <details style="margin-top: 40px;">
       <summary style="cursor: pointer; font-weight: 600; font-size: 14px;">Fuentes de los datos</summary>
@@ -165,4 +195,5 @@
 <script src="{% static 'js/planeta.js' %}"></script>
 <script src="{% static 'vendor/qrcode.js' %}"></script>
 <script src="{% static 'js/puente.js' %}"></script>
+<script src="{% static 'js/equipo.js' %}"></script>
 {% endblock %}
