@@ -1,7 +1,7 @@
 # Traspasos para empezar cada parte
 
 Volver a [[0-reparto]]. Cada responsable copia **su** bloque y lo pega como primer mensaje en una sesión
-nueva de Claude Code con el repositorio `Dacebesss/FoodBridge`. A partir de ahí, lo que pida es trabajo suyo, en su rama.
+nueva de Claude Code con el repositorio `FoodBridgeUEM/FoodBridge`. A partir de ahí, lo que pida es trabajo suyo, en su rama.
 
 ## 1 · Jefe de proyecto — Diego Acebes
 

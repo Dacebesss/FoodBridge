@@ -2,6 +2,12 @@
 
 Qué se hizo en cada sesión (lo más reciente arriba). Volver a [[Inicio]].
 
+## 2026-11-24
+- El repositorio pasa a la **organización de GitHub FoodBridgeUEM** (https://github.com/FoodBridgeUEM/FoodBridge),
+  con los 7 del equipo dentro. La dirección antigua `Dacebesss/FoodBridge` redirige sola.
+- Avance del proyecto entregable en PDF (8 páginas, índice con enlaces). La versión con la clave del administrador
+  NO está en el repositorio (es público); en `docs/entregas/` está la versión sin ella.
+
 ## 2026-11-23 (2)
 - **Prioridad por caducidad**: la entidad ve primero lo de caducidad más cercana, luego el consumo preferente;
   etiqueta roja «Urgente» si caduca hoy o mañana (`lotes_visibles_para` en `lotes/operaciones.py`).

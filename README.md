@@ -46,7 +46,7 @@ Proyecto de la asignatura *Eficacia Personal y Profesional* · 1º de Ingenierí
 En PyCharm: **File → New → Project from Version Control**, pega esta dirección y pulsa **Clone**:
 
 ```
-https://github.com/Dacebesss/FoodBridge.git
+https://github.com/FoodBridgeUEM/FoodBridge.git
 ```
 
 ### Paso 2 · Crear el entorno de Python

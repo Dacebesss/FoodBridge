@@ -17,6 +17,6 @@ Notas del proyecto para el equipo y para Claude. Se editan con **Obsidian** y se
 ## Enlaces rápidos
 - Web: https://foodbridgeuem.eu.pythonanywhere.com
 - Panel de administración: https://foodbridgeuem.eu.pythonanywhere.com/admin
-- Código: https://github.com/Dacebesss/FoodBridge
+- Código: https://github.com/FoodBridgeUEM/FoodBridge
 - Contactos reales del municipio: [[contactos_villaviciosa]]
 - Instrucciones que lee Claude al empezar: `CLAUDE.md` (en la raíz del proyecto)

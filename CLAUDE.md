@@ -25,7 +25,8 @@ Pensada para poder crecer a otros municipios (cada cuenta guarda su municipio).
 - Le gusta compartir enlaces por WhatsApp. Si una espera es larga, dar avances breves.
 - Comprobar siempre: `python manage.py test` y prueba en navegador (Playwright) con capturas.
 - Commits: autor `Diego Acebes <dacezasolucionessl@gmail.com>` + líneas de coautoría de Claude. Rama `main`.
-  Push a `https://github.com/Dacebesss/FoodBridge.git`.
+  Push a `https://github.com/FoodBridgeUEM/FoodBridge.git` (organización FoodBridgeUEM, con los 7 del equipo;
+  antes estaba en `Dacebesss/FoodBridge`, que redirige aquí).
 - Al terminar una sesión: **actualizar `docs/cerebro/diario.md` y `docs/cerebro/pendientes.md`**.
 
 ## Técnica (resumen)
